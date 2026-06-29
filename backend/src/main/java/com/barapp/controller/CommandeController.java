@@ -28,6 +28,11 @@ public class CommandeController {
         return commandeService.findById(id);
     }
 
+    @GetMapping("/client/{utilisateurId}")
+    public List<CommandeResponse> findAllForClient(@PathVariable Long utilisateurId) {
+        return commandeService.findAllForClient(utilisateurId);
+    }
+
     @GetMapping("/panier/{utilisateurId}")
     public CommandeResponse getPanier(@PathVariable Long utilisateurId) {
         return commandeService.getPanier(utilisateurId);

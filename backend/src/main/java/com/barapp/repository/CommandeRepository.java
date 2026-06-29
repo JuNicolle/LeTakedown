@@ -10,4 +10,5 @@ import java.util.Optional;
 public interface CommandeRepository extends JpaRepository<Commande, Long> {
     Optional<Commande> findByUtilisateurIdAndStatut(Long utilisateurId, StatutCommande statut);
     List<Commande> findByStatutNot(StatutCommande statut);
+    List<Commande> findByUtilisateurIdAndStatutNot(Long utilisateurId, StatutCommande statut);
 }

@@ -2,7 +2,6 @@ package com.barapp.entity;
 
 import com.barapp.enums.Role;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -24,12 +23,10 @@ public class Utilisateur {
     @Column(nullable = false)
     private String prenom;
 
-    @Email @NotBlank
-    @Column(nullable = false, unique = true)
+    @Column(unique = true)
     private String email;
 
-    @NotBlank
-    @Column(name = "mot_de_passe", nullable = false)
+    @Column(name = "mot_de_passe")
     private String motDePasse;
 
     @NotNull
