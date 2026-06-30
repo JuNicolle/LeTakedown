@@ -33,7 +33,7 @@ onUnmounted(() => { if (intervalId) clearInterval(intervalId) })
   <div class="page-dark">
     <!-- TOPBAR -->
     <div class="topbar">
-      <div class="topbar-brand">
+      <div class="topbar-brand" style="cursor:pointer" @click="router.push({ name: 'carte' })">
         <div class="topbar-mark">B</div>
         <div>
           <div class="topbar-name">BAR'APP</div>

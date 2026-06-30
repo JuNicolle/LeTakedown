@@ -30,7 +30,7 @@ const STATUT_COLORS: Record<string, string> = {
 <template>
   <div class="page-dark">
     <div class="topbar">
-      <div class="topbar-brand">
+      <div class="topbar-brand" style="cursor:pointer" @click="router.push({ name: 'barmaker-commandes' })">
         <div class="topbar-mark">B</div>
         <div>
           <div class="topbar-name">PIT CONTROL</div>

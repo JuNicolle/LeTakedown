@@ -21,12 +21,6 @@ const router = createRouter({
       meta: { requiresClient: true },
     },
     {
-      path: '/client/cocktail/:id',
-      name: 'cocktail-detail',
-      component: () => import('@/views/client/CocktailDetailView.vue'),
-      meta: { requiresClient: true },
-    },
-    {
       path: '/client/panier',
       name: 'panier',
       component: () => import('@/views/client/PanierView.vue'),

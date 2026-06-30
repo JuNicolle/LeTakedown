@@ -26,7 +26,7 @@ async function submit() {
 <template>
   <div class="page-dark">
     <div class="topbar">
-      <div class="topbar-brand">
+      <div class="topbar-brand" style="cursor:pointer" @click="router.push({ name: 'home' })">
         <div class="topbar-mark">B</div>
         <div>
           <div class="topbar-name">BAR'APP</div>

@@ -4,10 +4,11 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { usePanierStore } from '@/stores/panier'
 import { getCocktails, getCategories } from '@/api/cocktail'
-import { retirerDuPanier, lancerCommande, getPanier } from '@/api/commande'
+import { ajouterAuPanier, retirerDuPanier, lancerCommande, getPanier, getCommande } from '@/api/commande'
 import CocktailCard from '@/components/CocktailCard.vue'
 import UserPanel from '@/components/UserPanel.vue'
-import type { CocktailResponse, CategorieResponse } from '@/types'
+import PitTracker from '@/components/PitTracker.vue'
+import type { CocktailResponse, CategorieResponse, CommandeResponse, Taille } from '@/types'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -20,8 +21,10 @@ const loading = ref(true)
 const lancing = ref(false)
 const rpm = ref(920)
 const toast = ref('')
+const commandeSuivie = ref<CommandeResponse | null>(null)
 let toastTimer: ReturnType<typeof setTimeout> | null = null
 let rpmTimer: ReturnType<typeof setInterval> | null = null
+let suiviTimer: ReturnType<typeof setInterval> | null = null
 
 const cocktailsFiltres = computed(() =>
   categorieActive.value === null
@@ -29,14 +32,14 @@ const cocktailsFiltres = computed(() =>
     : cocktails.value.filter((c) => c.categorie.id === categorieActive.value),
 )
 
+const commandeTerminee = computed(() => commandeSuivie.value?.statut === 'TERMINEE')
+
 onMounted(async () => {
   const [cs, cats] = await Promise.all([getCocktails(), getCategories()])
   cocktails.value = cs
   categories.value = cats
   if (auth.user) {
-    try {
-      panierStore.setPanier(await getPanier(auth.user.id))
-    } catch {}
+    try { panierStore.setPanier(await getPanier(auth.user.id)) } catch {}
   }
   loading.value = false
   rpmTimer = setInterval(() => {
@@ -46,12 +49,21 @@ onMounted(async () => {
   }, 110)
 })
 
-onUnmounted(() => { if (rpmTimer) clearInterval(rpmTimer) })
+onUnmounted(() => {
+  if (rpmTimer) clearInterval(rpmTimer)
+  if (suiviTimer) clearInterval(suiviTimer)
+})
 
 function showToast(nom: string) {
   toast.value = nom
   if (toastTimer) clearTimeout(toastTimer)
   toastTimer = setTimeout(() => (toast.value = ''), 1500)
+}
+
+async function ajouter(cocktail: CocktailResponse, taille: Taille) {
+  if (!auth.user) return
+  panierStore.setPanier(await ajouterAuPanier(auth.user.id, cocktail.id, taille))
+  showToast(cocktail.nom)
 }
 
 async function retirer(ligneId: number) {
@@ -63,12 +75,30 @@ async function lancer() {
   if (!auth.user) return
   lancing.value = true
   try {
-    const commande = await lancerCommande(auth.user.id)
+    commandeSuivie.value = await lancerCommande(auth.user.id)
     panierStore.clear()
-    router.push({ name: 'suivi', params: { commandeId: commande.id } })
+    startSuivi()
   } catch {
     lancing.value = false
   }
+}
+
+function startSuivi() {
+  if (suiviTimer) clearInterval(suiviTimer)
+  suiviTimer = setInterval(async () => {
+    if (!commandeSuivie.value) return
+    commandeSuivie.value = await getCommande(commandeSuivie.value.id)
+    if (commandeSuivie.value.statut === 'TERMINEE') {
+      clearInterval(suiviTimer!)
+      suiviTimer = null
+    }
+  }, 5000)
+}
+
+function fermerSuivi() {
+  if (suiviTimer) { clearInterval(suiviTimer); suiviTimer = null }
+  commandeSuivie.value = null
+  lancing.value = false
 }
 </script>
 
@@ -83,10 +113,10 @@ async function lancer() {
 
     <!-- TOPBAR -->
     <div class="topbar">
-      <div class="topbar-brand">
+      <div class="topbar-brand" style="cursor:pointer" @click="router.push({ name: 'carte' })">
         <div class="topbar-mark">B</div>
         <div>
-          <div class="topbar-name">BAR'APP</div>
+          <div class="topbar-name">BURNOUT BAR</div>
           <div class="topbar-sub">PIT-LANE COCKTAIL HUB</div>
         </div>
       </div>
@@ -105,7 +135,7 @@ async function lancer() {
           <div class="hero-eyebrow">
             <span class="hero-blink" />LA CARTE&nbsp;&nbsp;//&nbsp;&nbsp;CHOISISSEZ VOTRE COCKTAIL
           </div>
-          <h1 class="hero-h1">PRENEZ LA<br/>LIGNE. FONCEZ.</h1>
+          <h1 class="hero-h1">PRENEZ LE<br/>DEPART. FONCEZ.</h1>
         </div>
         <div class="hero-pills">
           <div class="pill">
@@ -124,7 +154,6 @@ async function lancer() {
     <div class="main wrap">
       <!-- CARTE -->
       <div class="carte-col">
-        <!-- Filtres catégories -->
         <div class="filtres">
           <button class="filtre" :class="{ active: categorieActive === null }" @click="categorieActive = null">
             TOUS
@@ -151,14 +180,33 @@ async function lancer() {
           <CocktailCard
             v-for="(c, i) in cocktailsFiltres" :key="c.id"
             :cocktail="c" :num="i + 1"
-            @click="router.push({ name: 'cocktail-detail', params: { id: c.id } })"
+            @add="(taille) => ajouter(c, taille)"
           />
         </div>
       </div>
 
-      <!-- RAIL PANIER -->
+      <!-- RAIL -->
       <div class="rail">
-        <div class="panel">
+        <!-- PIT TRACKER (commande en cours) -->
+        <div v-if="commandeSuivie" class="panel suivi-panel">
+          <div class="panel-head">
+            <span class="panel-title">PIT TRACKER</span>
+            <span class="suivi-id">#{{ commandeSuivie.id }}</span>
+          </div>
+          <div class="panel-body">
+            <div v-if="commandeTerminee" class="ready-banner">🏁 COMMANDE PRÊTE !</div>
+            <div v-else class="suivi-pulse">
+              <span class="dot" />EN PRÉPARATION
+            </div>
+            <PitTracker :lignes="commandeSuivie.lignes" compact />
+            <button class="btn-dark" style="margin-top:16px;width:100%;text-align:center" @click="fermerSuivi">
+              {{ commandeTerminee ? '✓ FERMER' : '× MASQUER' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- GARAGE CART -->
+        <div class="panel" :style="commandeSuivie ? 'margin-top:48px' : ''">
           <div class="panel-head">
             <span class="panel-title">GARAGE CART</span>
             <span class="count-badge">{{ panierStore.nbArticles }}</span>
@@ -173,7 +221,6 @@ async function lancer() {
                 </div>
                 <button class="btn-step" @click="retirer(ligne.id)">✕</button>
               </div>
-
               <div class="total-row">
                 <span>TOTAL</span>
                 <span class="total-v">{{ panierStore.total.toFixed(2) }}€</span>
@@ -182,7 +229,6 @@ async function lancer() {
                 {{ lancing ? 'ENVOI...' : '⟫ LANCER LA COMMANDE' }}
               </button>
             </template>
-
             <div v-else class="empty-state">
               <div class="empty-h">VIDE</div>
               <p class="empty-p">Ajoutez des cocktails depuis la carte.</p>
@@ -222,8 +268,8 @@ async function lancer() {
 .hint { font: 700 10px 'Space Mono'; color: #8a857a; }
 
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
-
-.rail { width: 360px; flex-grow: 1; position: sticky; top: 74px; align-self: flex-start; }
+.panel {margin-top: 12px;}
+.rail { width: 360px; position: sticky; align-self: flex-start; padding-top: 94px; }
 
 .cart-row { display: flex; align-items: center; gap: 10px; padding: 10px 4px; border-bottom: 1px solid #2c2c36; }
 .cart-accent { width: 4px; align-self: stretch; flex-shrink: 0; }
@@ -233,6 +279,26 @@ async function lancer() {
 
 .total-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 4px; font: 700 11px 'Chakra Petch'; letter-spacing: 2px; color: #8a857a; }
 .total-v { font: 700 22px 'Space Mono'; color: #F2EEE7; }
+
+.suivi-panel { border-top-color: #B6FF2E; }
+.suivi-id { font: 700 12px 'Space Mono'; color: #B6FF2E; }
+
+.suivi-pulse {
+  display: flex; align-items: center; gap: 8px;
+  font: 700 10px 'Chakra Petch'; letter-spacing: 2px; color: #FF7A00;
+  margin-bottom: 14px;
+}
+.suivi-pulse .dot {
+  width: 8px; height: 8px; border-radius: 50%; background: #FF7A00;
+  animation: boostBlink .5s ease-in-out infinite;
+}
+
+.ready-banner {
+  background: #B6FF2E; color: #101015;
+  font: 900 14px 'Saira'; font-style: italic;
+  text-align: center; padding: 10px; margin-bottom: 14px;
+  animation: readyPulse 1.1s ease-in-out infinite;
+}
 
 .hero-pills { display: flex; gap: 10px; }
 .pill { text-align: center; border: 1.5px solid #2c2c36; padding: 10px 14px; min-width: 80px; }

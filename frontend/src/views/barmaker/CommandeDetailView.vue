@@ -33,7 +33,7 @@ async function avancer(ligneId: number) {
 <template>
   <div class="page-dark">
     <div class="topbar">
-      <div class="topbar-brand">
+      <div class="topbar-brand" style="cursor:pointer" @click="router.push({ name: 'barmaker-commandes' })">
         <div class="topbar-mark">B</div>
         <div>
           <div class="topbar-name">COMMANDE #{{ route.params.id }}</div>
