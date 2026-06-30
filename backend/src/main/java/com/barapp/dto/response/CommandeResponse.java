@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 public record CommandeResponse(
         Long id,
         Long utilisateurId,
+        String utilisateurPrenom,
         StatutCommande statut,
         LocalDateTime dateCreation,
         LocalDateTime dateMiseAJour,
@@ -19,6 +20,7 @@ public record CommandeResponse(
         return new CommandeResponse(
                 c.getId(),
                 c.getUtilisateur().getId(),
+                c.getUtilisateur().getPrenom(),
                 c.getStatut(),
                 c.getDateCreation(),
                 c.getDateMiseAJour(),

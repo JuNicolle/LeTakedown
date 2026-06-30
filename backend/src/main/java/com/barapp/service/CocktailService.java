@@ -65,6 +65,7 @@ public class CocktailService {
         cocktail.getIngredients().clear();
         applyIngredients(cocktail, request.ingredientIds());
         cocktail.getPrix().clear();
+        cocktailRepository.saveAndFlush(cocktail); // force DELETE avant INSERT (contrainte unique taille)
         applyPrix(cocktail, request);
 
         return CocktailResponse.from(cocktailRepository.save(cocktail));
