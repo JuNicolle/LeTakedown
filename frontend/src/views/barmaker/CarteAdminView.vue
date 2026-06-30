@@ -3,7 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import {
   getCocktails, getCategories, getIngredients,
-  createCocktail, updateCocktail, deleteCocktail,
+  createCocktail, updateCocktail, deleteCocktail, toggleDisponibilite,
   createCategorie, deleteCategorie,
   createIngredient, deleteIngredient,
 } from '@/api/cocktail'
@@ -102,6 +102,12 @@ async function saveCocktail() {
   } finally {
     saving.value = false
   }
+}
+
+async function toggleDispo(id: number) {
+  const updated = await toggleDisponibilite(id)
+  const item = cocktails.value.find(c => c.id === id)
+  if (item) item.disponible = updated.disponible
 }
 
 async function supprimerCocktail(id: number) {
@@ -263,10 +269,13 @@ function toggleIngredient(id: number) {
 
         <!-- Liste cocktails -->
         <div class="items-list">
-          <div v-for="c in cocktails" :key="c.id" class="item-card">
+          <div v-for="c in cocktails" :key="c.id" class="item-card" :class="{ paused: !c.disponible }">
             <div class="item-left">
-              <span class="item-cat">{{ c.categorie.nom }}</span>
-              <div class="item-nom">{{ c.nom }}</div>
+              <div class="item-top-row">
+                <span class="item-cat">{{ c.categorie.nom }}</span>
+                <span v-if="!c.disponible" class="pause-badge">⏸ EN PAUSE</span>
+              </div>
+              <div class="item-nom" :style="!c.disponible ? { opacity: '0.4' } : {}">{{ c.nom }}</div>
               <div class="item-prix">
                 <span v-for="p in c.prix" :key="p.taille" class="prix-chip">
                   {{ p.taille }} {{ Number(p.prix).toFixed(2) }}€
@@ -274,6 +283,14 @@ function toggleIngredient(id: number) {
               </div>
             </div>
             <div class="item-actions">
+              <button
+                class="btn-pause"
+                :class="{ active: !c.disponible }"
+                :title="c.disponible ? 'Mettre en pause' : 'Remettre en ligne'"
+                @click="toggleDispo(c.id)"
+              >
+                {{ c.disponible ? '⏸' : '▶' }}
+              </button>
               <button class="btn-dark" style="font-size:9px;padding:5px 12px" @click="openEditCocktail(c)">MODIFIER</button>
               <button class="btn-delete" @click="supprimerCocktail(c.id)">✕</button>
             </div>
@@ -388,6 +405,26 @@ function toggleIngredient(id: number) {
   transition: all .15s;
 }
 .btn-delete:hover { border-color: #FF2A1A; color: #FF2A1A; }
+
+.btn-pause {
+  background: transparent; color: #6f6a61;
+  border: 1.5px solid #2c2c36; font: 700 13px 'Space Mono';
+  width: 30px; height: 30px; cursor: pointer; display: grid; place-items: center;
+  transition: all .15s;
+}
+.btn-pause:hover { border-color: #FF7A00; color: #FF7A00; }
+.btn-pause.active { border-color: #B6FF2E; color: #B6FF2E; }
+.btn-pause.active:hover { border-color: #F2EEE7; color: #F2EEE7; }
+
+.item-top-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.pause-badge {
+  font: 700 9px 'Chakra Petch'; letter-spacing: 1.5px;
+  color: #FF7A00; border: 1px solid #FF7A00;
+  padding: 1px 6px;
+}
+
+.item-card.paused { border-color: #3a2a1a; background: #161310; }
+.item-card.paused .item-cat { color: #6f6a61; }
 
 /* ADD BAR */
 .add-bar { display: flex; gap: 10px; margin-bottom: 16px; }

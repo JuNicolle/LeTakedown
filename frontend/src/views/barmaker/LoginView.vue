@@ -29,7 +29,7 @@ async function submit() {
       <div class="topbar-brand" style="cursor:pointer" @click="router.push({ name: 'home' })">
         <div class="topbar-mark">B</div>
         <div>
-          <div class="topbar-name">BAR'APP</div>
+          <div class="topbar-name">BURNOUT BAR</div>
           <div class="topbar-sub">PIT CONTROL — BARMAKER</div>
         </div>
       </div>

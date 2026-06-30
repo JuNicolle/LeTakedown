@@ -21,18 +21,17 @@ const loading = ref(true)
 const lancing = ref(false)
 const rpm = ref(920)
 const toast = ref('')
-const commandeSuivie = ref<CommandeResponse | null>(null)
+const commandesSuivies = ref<CommandeResponse[]>([])
+const suiviReduits = ref<number[]>([])
 let toastTimer: ReturnType<typeof setTimeout> | null = null
 let rpmTimer: ReturnType<typeof setInterval> | null = null
 let suiviTimer: ReturnType<typeof setInterval> | null = null
 
 const cocktailsFiltres = computed(() =>
-  categorieActive.value === null
-    ? cocktails.value
-    : cocktails.value.filter((c) => c.categorie.id === categorieActive.value),
+  cocktails.value
+    .filter(c => c.disponible)
+    .filter(c => categorieActive.value === null || c.categorie.id === categorieActive.value)
 )
-
-const commandeTerminee = computed(() => commandeSuivie.value?.statut === 'TERMINEE')
 
 onMounted(async () => {
   const [cs, cats] = await Promise.all([getCocktails(), getCategories()])
@@ -75,35 +74,50 @@ async function lancer() {
   if (!auth.user) return
   lancing.value = true
   try {
-    commandeSuivie.value = await lancerCommande(auth.user.id)
+    const commande = await lancerCommande(auth.user.id)
+    commandesSuivies.value.push(commande)
     panierStore.clear()
+    // le backend auto-crée un nouveau PANIER vide au prochain ajout
     startSuivi()
   } catch {
+    // rien
+  } finally {
     lancing.value = false
   }
 }
 
 function startSuivi() {
-  if (suiviTimer) clearInterval(suiviTimer)
+  if (suiviTimer) return // déjà en cours
   suiviTimer = setInterval(async () => {
-    if (!commandeSuivie.value) return
-    commandeSuivie.value = await getCommande(commandeSuivie.value.id)
-    if (commandeSuivie.value.statut === 'TERMINEE') {
-      clearInterval(suiviTimer!)
-      suiviTimer = null
+    const actives = commandesSuivies.value.filter(c => c.statut !== 'TERMINEE')
+    if (actives.length === 0) {
+      clearInterval(suiviTimer!); suiviTimer = null; return
+    }
+    const mises = await Promise.all(actives.map(c => getCommande(c.id)))
+    for (const maj of mises) {
+      const idx = commandesSuivies.value.findIndex(c => c.id === maj.id)
+      if (idx !== -1) commandesSuivies.value[idx] = maj
     }
   }, 5000)
 }
 
-function fermerSuivi() {
-  if (suiviTimer) { clearInterval(suiviTimer); suiviTimer = null }
-  commandeSuivie.value = null
-  lancing.value = false
+function toggleSuivi(id: number) {
+  const idx = suiviReduits.value.indexOf(id)
+  if (idx >= 0) suiviReduits.value.splice(idx, 1)
+  else suiviReduits.value.push(id)
+}
+
+function fermerSuivi(id: number) {
+  commandesSuivies.value = commandesSuivies.value.filter(c => c.id !== id)
+  suiviReduits.value = suiviReduits.value.filter(i => i !== id)
+  if (commandesSuivies.value.every(c => c.statut === 'TERMINEE') || commandesSuivies.value.length === 0) {
+    if (suiviTimer) { clearInterval(suiviTimer); suiviTimer = null }
+  }
 }
 </script>
 
 <template>
-  <div class="page-cream">
+  <div class="page-cream carte-view">
     <!-- DECOR -->
     <div class="decor" aria-hidden="true">
       <div class="decor-glow" />
@@ -121,10 +135,10 @@ function fermerSuivi() {
         </div>
       </div>
       <div class="topbar-spacer" />
-      <div class="topbar-rpm">
+      <!-- <div class="topbar-rpm">
         <span class="topbar-rpm-l">RPM</span>
         <span class="topbar-rpm-v">{{ rpm }}</span>
-      </div>
+      </div> -->
       <UserPanel />
     </div>
 
@@ -136,6 +150,7 @@ function fermerSuivi() {
             <span class="hero-blink" />LA CARTE&nbsp;&nbsp;//&nbsp;&nbsp;CHOISISSEZ VOTRE COCKTAIL
           </div>
           <h1 class="hero-h1">PRENEZ LE<br/>DEPART. FONCEZ.</h1>
+          <p class="hero-warning">⚠ CRASHBREAKER AUTORISÉ ICI — PAS AU VOLANT</p>
         </div>
         <div class="hero-pills">
           <div class="pill">
@@ -187,26 +202,35 @@ function fermerSuivi() {
 
       <!-- RAIL -->
       <div class="rail">
-        <!-- PIT TRACKER (commande en cours) -->
-        <div v-if="commandeSuivie" class="panel suivi-panel">
-          <div class="panel-head">
+        <!-- PIT TRACKERS -->
+        <div
+          v-for="commande in commandesSuivies" :key="commande.id"
+          class="panel suivi-panel"
+        >
+          <div class="panel-head suivi-head" @click="toggleSuivi(commande.id)">
             <span class="panel-title">PIT TRACKER</span>
-            <span class="suivi-id">#{{ commandeSuivie.id }}</span>
+            <span class="suivi-id">#{{ commande.id }}</span>
+            <span class="suivi-chevron">{{ suiviReduits.includes(commande.id) ? '▼' : '▲' }}</span>
           </div>
-          <div class="panel-body">
-            <div v-if="commandeTerminee" class="ready-banner">🏁 COMMANDE PRÊTE !</div>
+          <div v-show="!suiviReduits.includes(commande.id)" class="panel-body">
+            <div v-if="commande.statut === 'TERMINEE'" class="ready-banner">🏁 COMMANDE PRÊTE !</div>
             <div v-else class="suivi-pulse">
               <span class="dot" />EN PRÉPARATION
             </div>
-            <PitTracker :lignes="commandeSuivie.lignes" compact />
-            <button class="btn-dark" style="margin-top:16px;width:100%;text-align:center" @click="fermerSuivi">
-              {{ commandeTerminee ? '✓ FERMER' : '× MASQUER' }}
+            <PitTracker :lignes="commande.lignes" compact />
+            <button
+              v-if="commande.statut === 'TERMINEE'"
+              class="btn-dark"
+              style="margin-top:16px;width:100%;text-align:center"
+              @click.stop="fermerSuivi(commande.id)"
+            >
+              ✓ FERMER
             </button>
           </div>
         </div>
 
         <!-- GARAGE CART -->
-        <div class="panel" :style="commandeSuivie ? 'margin-top:48px' : ''">
+        <div class="panel" :style="commandesSuivies.length ? 'margin-top:16px' : ''">
           <div class="panel-head">
             <span class="panel-title">GARAGE CART</span>
             <span class="count-badge">{{ panierStore.nbArticles }}</span>
@@ -244,6 +268,18 @@ function fermerSuivi() {
 </template>
 
 <style scoped>
+.carte-view {
+  background: url('@/assets/backgroundcarteview.png') center / cover fixed;
+}
+
+.hero-warning {
+  margin-top: 10px;
+  font: 700 10px 'Chakra Petch';
+  letter-spacing: 2px;
+  color: #FF7A00;
+  opacity: .8;
+}
+
 .main {
   position: relative; z-index: 1;
   display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start;
@@ -263,7 +299,7 @@ function fermerSuivi() {
   background: #FF2A1A; border-color: #FF2A1A; color: #101015;
 }
 
-.carte-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px; }
+.carte-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px;color: #F2EEE7 }
 .carte-head h2 { font: 900 26px 'Saira'; font-style: italic; letter-spacing: -1px; margin: 0; }
 .hint { font: 700 10px 'Space Mono'; color: #8a857a; }
 
@@ -282,6 +318,9 @@ function fermerSuivi() {
 
 .suivi-panel { border-top-color: #B6FF2E; }
 .suivi-id { font: 700 12px 'Space Mono'; color: #B6FF2E; }
+.suivi-head { cursor: pointer; user-select: none; }
+.suivi-head:hover { background: #1f1f28; }
+.suivi-chevron { font: 700 10px 'Space Mono'; color: #B6FF2E; margin-left: auto; }
 
 .suivi-pulse {
   display: flex; align-items: center; gap: 8px;
