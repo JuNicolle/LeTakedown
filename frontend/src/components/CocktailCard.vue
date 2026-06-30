@@ -87,7 +87,13 @@ function pickTaille(taille: Taille) {
         <button class="cancel-btn" @click="selecting = false">✕</button>
       </template>
       <template v-else>
-        <div class="cta" @click="handleChoisir">CHOISIR →</div>
+        <button
+          class="cta"
+          :aria-label="`Choisir ${cocktail.nom}`"
+          @click="handleChoisir"
+        >
+          CHOISIR →
+        </button>
       </template>
     </div>
   </div>
@@ -145,13 +151,19 @@ function pickTaille(taille: Taille) {
 }
 
 .cta {
-  flex: 1; background: #16161B; color: #F2EEE7;
-  font: 700 12px 'Chakra Petch'; letter-spacing: 2px;
+  flex: 1; width: 100%;
+  background: #FF2A1A; color: #101015;
+  border: none; outline: none;
+  font: 900 12px 'Chakra Petch'; letter-spacing: 3px;
   display: grid; place-items: center;
   padding: 14px; cursor: pointer;
   transition: background .15s;
 }
-.card:hover .cta { background: #FF2A1A; color: #101015; }
+.cta:hover { background: #d41f10; color: #fff; }
+.cta:focus-visible {
+  outline: 3px solid #B6FF2E;
+  outline-offset: -3px;
+}
 
 .size-btn {
   flex: 1; background: #FF2A1A; color: #101015;
@@ -161,6 +173,7 @@ function pickTaille(taille: Taille) {
   transition: background .1s;
 }
 .size-btn:hover { background: #d41f10; color: #fff; }
+.size-btn:focus-visible { outline: 3px solid #B6FF2E; outline-offset: -3px; }
 
 .cancel-btn {
   background: #16161B; color: #6f6a61;
@@ -169,4 +182,5 @@ function pickTaille(taille: Taille) {
   transition: color .1s;
 }
 .cancel-btn:hover { color: #F2EEE7; }
+.cancel-btn:focus-visible { outline: 3px solid #B6FF2E; outline-offset: -3px; }
 </style>

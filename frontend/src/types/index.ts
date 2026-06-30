@@ -33,6 +33,7 @@ export interface CocktailResponse {
   categorie: CategorieResponse
   ingredients: IngredientResponse[]
   prix: CocktailPrixResponse[]
+  disponible: boolean
 }
 
 export interface LigneCommandeResponse {
@@ -47,6 +48,7 @@ export interface LigneCommandeResponse {
 export interface CommandeResponse {
   id: number
   utilisateurId: number
+  utilisateurPrenom: string
   statut: StatutCommande
   dateCreation: string
   dateMiseAJour: string

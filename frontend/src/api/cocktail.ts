@@ -34,6 +34,10 @@ export function updateCocktail(id: number, data: unknown): Promise<CocktailRespo
   })
 }
 
+export function toggleDisponibilite(id: number): Promise<CocktailResponse> {
+  return request(`/api/cocktails/${id}/disponibilite`, { method: 'PATCH' })
+}
+
 export function deleteCocktail(id: number): Promise<void> {
   return request(`/api/cocktails/${id}`, { method: 'DELETE' })
 }

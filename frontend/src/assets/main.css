@@ -50,7 +50,8 @@ body {
 /* ---- Hero strip ---- */
 .hero {
   position: relative; overflow: hidden;
-  background: #16161B; color: #F2EEE7;
+  background: rgba(16,16,21,0.55);
+  color: #F2EEE7;
   padding: 28px 24px;
 }
 .hero::before {
@@ -62,6 +63,7 @@ body {
 .hero-eyebrow { display: inline-flex; align-items: center; gap: 8px; font: 600 11px 'Chakra Petch'; letter-spacing: 3px; color: #FF7A00; margin-bottom: 10px; }
 .hero-blink { width: 7px; height: 7px; background: #FF2A1A; display: inline-block; animation: blink 1s steps(1) infinite; }
 .hero-h1 { margin: 0; font: 900 clamp(28px,6vw,60px) 'Saira'; font-style: italic; letter-spacing: -2px; line-height: .85; text-shadow: 3px 0 #FF2A1A, -3px 0 #19C2FF; }
+.hero-h3 { margin: 0; font: 700 clamp(28px,6vw,60px) 'Saira'; font-style: italic; letter-spacing: -2px; line-height: .85; text-shadow: 3px 0 #FF2A1A, -3px 0 #19C2FF; }
 
 /* ---- Dark panel ---- */
 .panel {
