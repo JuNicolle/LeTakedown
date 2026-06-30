@@ -27,7 +27,7 @@ public class CocktailService {
     private final IngredientRepository ingredientRepository;
 
     public List<CocktailResponse> findAll() {
-        return cocktailRepository.findAll().stream().map(CocktailResponse::from).toList();
+        return cocktailRepository.findAllByOrderByOrdreAscIdAsc().stream().map(CocktailResponse::from).toList();
     }
 
     public CocktailResponse findById(Long id) {
@@ -74,6 +74,13 @@ public class CocktailService {
     public void delete(Long id) {
         getOrThrow(id);
         cocktailRepository.deleteById(id);
+    }
+
+    @Transactional
+    public CocktailResponse toggleDisponibilite(Long id) {
+        Cocktail cocktail = getOrThrow(id);
+        cocktail.setDisponible(!cocktail.isDisponible());
+        return CocktailResponse.from(cocktailRepository.save(cocktail));
     }
 
     private void applyIngredients(Cocktail cocktail, Set<Long> ingredientIds) {

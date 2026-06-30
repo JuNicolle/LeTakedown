@@ -46,4 +46,12 @@ public class Cocktail {
     @OneToMany(mappedBy = "cocktail", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
     private List<CocktailPrix> prix = new ArrayList<>();
+
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    @Builder.Default
+    private boolean disponible = true;
+
+    @Column(nullable = false, columnDefinition = "int default 999")
+    @Builder.Default
+    private int ordre = 999;
 }

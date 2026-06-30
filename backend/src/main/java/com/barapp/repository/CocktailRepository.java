@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface CocktailRepository extends JpaRepository<Cocktail, Long> {
     List<Cocktail> findByCategorieId(Long categorieId);
+    List<Cocktail> findAllByOrderByOrdreAscIdAsc();
 }

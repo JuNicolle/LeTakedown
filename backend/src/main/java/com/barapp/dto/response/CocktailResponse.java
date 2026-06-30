@@ -13,7 +13,8 @@ public record CocktailResponse(
         String imageUrl,
         CategorieResponse categorie,
         Set<IngredientResponse> ingredients,
-        List<CocktailPrixResponse> prix
+        List<CocktailPrixResponse> prix,
+        boolean disponible
 ) {
     public static CocktailResponse from(Cocktail c) {
         return new CocktailResponse(
@@ -23,7 +24,8 @@ public record CocktailResponse(
                 c.getImageUrl(),
                 CategorieResponse.from(c.getCategorie()),
                 c.getIngredients().stream().map(IngredientResponse::from).collect(Collectors.toSet()),
-                c.getPrix().stream().map(CocktailPrixResponse::from).collect(Collectors.toList())
+                c.getPrix().stream().map(CocktailPrixResponse::from).collect(Collectors.toList()),
+                c.isDisponible()
         );
     }
 }

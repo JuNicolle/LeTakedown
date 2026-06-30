@@ -38,6 +38,11 @@ public class CocktailController {
         return cocktailService.update(id, request);
     }
 
+    @PatchMapping("/{id}/disponibilite")
+    public CocktailResponse toggleDisponibilite(@PathVariable Long id) {
+        return cocktailService.toggleDisponibilite(id);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         cocktailService.delete(id);
