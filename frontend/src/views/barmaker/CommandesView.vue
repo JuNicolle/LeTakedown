@@ -89,7 +89,6 @@ async function avancer(commande: CommandeResponse, ligneId: number) {
       <div v-if="loading" class="empty-state" style="color:#F2EEE7"><div class="empty-h">CHARGEMENT...</div></div>
 
       <template v-else>
-        <!-- Actives -->
         <div class="section">
           <div class="section-head">
             <span class="section-title">EN ATTENTE / EN COURS</span>
@@ -103,7 +102,6 @@ async function avancer(commande: CommandeResponse, ligneId: number) {
 
           <div class="commandes-list">
             <div v-for="c in actives" :key="c.id" class="commande-card">
-              <!-- En-tête commande -->
               <div class="card-header">
                 <div class="card-id-badge" :style="{ background: STATUT_COLORS[c.statut] }">#{{ c.id }}</div>
                 <div>
@@ -116,7 +114,6 @@ async function avancer(commande: CommandeResponse, ligneId: number) {
                 </div>
               </div>
 
-              <!-- Lignes avec boutons -->
               <div class="lignes">
                 <div v-for="ligne in c.lignes" :key="ligne.id" class="ligne-row">
                   <span class="ligne-id">#{{ ligne.id }}</span>
@@ -137,7 +134,6 @@ async function avancer(commande: CommandeResponse, ligneId: number) {
           </div>
         </div>
 
-        <!-- Terminées -->
         <div class="section" style="margin-top:28px">
           <div class="section-head">
             <span class="section-title">TERMINÉES</span>

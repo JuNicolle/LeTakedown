@@ -76,7 +76,6 @@ async function avancer(ligneId: number) {
       <template v-else-if="commande">
         <div v-if="commande.statut === 'TERMINEE'" class="ready-banner">✓ COMMANDE TERMINÉE</div>
 
-        <!-- Vue d'ensemble PitTracker -->
         <div class="panel overview-panel">
           <div class="panel-head"><span class="panel-title">VUE D'ENSEMBLE</span></div>
           <div class="panel-body">
@@ -84,7 +83,6 @@ async function avancer(ligneId: number) {
           </div>
         </div>
 
-        <!-- Actions par ligne -->
         <div class="lignes-section">
           <div class="section-head">
             <span class="section-title">AVANCER LES COCKTAILS</span>

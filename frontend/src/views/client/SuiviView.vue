@@ -31,7 +31,6 @@ onUnmounted(() => { if (intervalId) clearInterval(intervalId) })
 
 <template>
   <div class="page-dark">
-    <!-- TOPBAR -->
     <div class="topbar">
       <div class="topbar-brand" style="cursor:pointer" @click="router.push({ name: 'carte' })">
         <div class="topbar-mark">B</div>
@@ -46,7 +45,6 @@ onUnmounted(() => { if (intervalId) clearInterval(intervalId) })
       </button>
     </div>
 
-    <!-- HERO -->
     <div class="hero">
       <div class="hero-inner">
         <div>
@@ -72,7 +70,6 @@ onUnmounted(() => { if (intervalId) clearInterval(intervalId) })
       </div>
     </div>
 
-    <!-- TRACKER -->
     <div class="tracker-shell wrap">
       <div v-if="loading" class="empty-state">
         <div class="empty-h">CHARGEMENT...</div>
@@ -97,7 +94,6 @@ onUnmounted(() => { if (intervalId) clearInterval(intervalId) })
         </div>
 
         <p v-if="commande.statut !== 'TERMINEE'" class="refresh-info">
-          // MISE À JOUR AUTOMATIQUE TOUTES LES 5 SECONDES
         </p>
       </template>
     </div>

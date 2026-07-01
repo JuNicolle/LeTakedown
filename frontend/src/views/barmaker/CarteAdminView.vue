@@ -144,7 +144,6 @@ function toggleIngredient(id: number) {
 
 <template>
   <div class="page-dark">
-    <!-- TOPBAR -->
     <div class="topbar">
       <div class="topbar-brand" style="cursor:pointer" @click="router.push({ name: 'barmaker-commandes' })">
         <div class="topbar-mark">B</div>
@@ -159,7 +158,6 @@ function toggleIngredient(id: number) {
       </button>
     </div>
 
-    <!-- HERO -->
     <div class="hero">
       <div class="hero-inner">
         <div>
@@ -184,7 +182,6 @@ function toggleIngredient(id: number) {
     </div>
 
     <div class="main wrap">
-      <!-- TABS -->
       <div class="tabs">
         <button class="tab" :class="{ active: activeTab === 'cocktails' }" @click="activeTab = 'cocktails'">
           COCKTAILS
@@ -197,7 +194,6 @@ function toggleIngredient(id: number) {
         </button>
       </div>
 
-      <!-- ── COCKTAILS ── -->
       <div v-if="activeTab === 'cocktails'">
         <div class="section-bar">
           <span class="section-title">{{ cocktails.length }} COCKTAIL{{ cocktails.length > 1 ? 'S' : '' }}</span>
@@ -206,7 +202,6 @@ function toggleIngredient(id: number) {
           </button>
         </div>
 
-        <!-- Formulaire cocktail -->
         <div v-if="showCocktailForm" class="panel form-panel">
           <div class="panel-head">
             <span class="panel-title">{{ editingCocktail ? 'MODIFIER — ' + editingCocktail.nom.toUpperCase() : 'NOUVEAU COCKTAIL' }}</span>
@@ -267,7 +262,6 @@ function toggleIngredient(id: number) {
           </div>
         </div>
 
-        <!-- Liste cocktails -->
         <div class="items-list">
           <div v-for="c in cocktails" :key="c.id" class="item-card" :class="{ paused: !c.disponible }">
             <div class="item-left">
@@ -298,7 +292,6 @@ function toggleIngredient(id: number) {
         </div>
       </div>
 
-      <!-- ── CATÉGORIES ── -->
       <div v-if="activeTab === 'categories'">
         <div class="add-bar">
           <input v-model="newCategorie" placeholder="NOM DE LA CATÉGORIE" @keyup.enter="ajouterCategorie" />
@@ -312,7 +305,6 @@ function toggleIngredient(id: number) {
         </div>
       </div>
 
-      <!-- ── INGRÉDIENTS ── -->
       <div v-if="activeTab === 'ingredients'">
         <div class="add-bar">
           <input v-model="newIngredient" placeholder="NOM DE L'INGRÉDIENT" @keyup.enter="ajouterIngredient" />

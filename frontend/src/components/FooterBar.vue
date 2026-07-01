@@ -2,7 +2,6 @@
   <footer class="footer">
     <div class="footer-inner">
 
-      <!-- BRAND -->
       <div class="footer-brand">
         <div class="footer-mark">B</div>
         <div>
@@ -11,10 +10,8 @@
         </div>
       </div>
 
-      <!-- COLONNES -->
       <div class="footer-cols">
 
-        <!-- NOUS TROUVER -->
         <div class="footer-col">
           <div class="col-title">NOUS TROUVER</div>
           <p class="col-line">42 Rue du Circuit</p>
@@ -24,7 +21,6 @@
           <p class="col-line">Dim : 20h–00h</p>
         </div>
 
-        <!-- CONTACT -->
         <div class="footer-col">
           <div class="col-title">CONTACT</div>
           <p class="col-line">contact@burnoutbar.fr</p>
@@ -33,7 +29,6 @@
           <p class="col-line">resa@burnoutbar.fr</p>
         </div>
 
-        <!-- RÉSEAUX -->
         <div class="footer-col">
           <div class="col-title">SUIVEZ-NOUS</div>
           <div class="socials">
@@ -56,7 +51,6 @@
           </div>
         </div>
 
-        <!-- MENTIONS LÉGALES -->
         <div class="footer-col">
           <div class="col-title">MENTIONS LÉGALES</div>
           <p class="col-line"><span class="col-label">Raison sociale</span>BURNOUT BAR SAS</p>
@@ -69,7 +63,6 @@
 
       </div>
 
-      <!-- BARRE BAS -->
       <div class="footer-bottom">
         <div class="footer-legal">
           <span>© {{ year }} Burnout Bar SAS — Tous droits réservés</span>

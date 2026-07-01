@@ -36,7 +36,14 @@ onMounted(async () => {
   cocktails.value = cs
   categories.value = cats
   if (auth.user) {
-    try { panierStore.setPanier(await getPanier(auth.user.id)) } catch {}
+    try {
+      panierStore.setPanier(await getPanier(auth.user.id))
+    } catch (e: unknown) {
+      if (e instanceof Error && e.message.includes('404')) {
+        auth.logout()
+        router.push({ name: 'onboarding' })
+      }
+    }
   }
   loading.value = false
 })
@@ -69,17 +76,15 @@ async function lancer() {
     const commande = await lancerCommande(auth.user.id)
     commandesSuivies.value.push(commande)
     panierStore.clear()
-    // le backend auto-crée un nouveau PANIER vide au prochain ajout
     startSuivi()
   } catch {
-    // rien
   } finally {
     lancing.value = false
   }
 }
 
 function startSuivi() {
-  if (suiviTimer) return // déjà en cours
+  if (suiviTimer) return
   suiviTimer = setInterval(async () => {
     const actives = commandesSuivies.value.filter(c => c.statut !== 'TERMINEE')
     if (actives.length === 0) {
@@ -110,14 +115,12 @@ function fermerSuivi(id: number) {
 
 <template>
   <div class="page-cream carte-view">
-    <!-- DECOR -->
     <div class="decor" aria-hidden="true">
       <div class="decor-glow" />
       <div class="decor-barrier" style="top:420px;right:-50px;width:400px;height:22px;transform:rotate(7deg)" />
       <div class="decor-barrier" style="top:980px;left:-50px;width:340px;height:20px;transform:rotate(-5deg)" />
     </div>
 
-    <!-- TOPBAR -->
     <div class="topbar">
       <div class="topbar-brand" style="cursor:pointer" @click="router.push({ name: 'carte' })">
         <div class="topbar-mark">B</div>
@@ -130,7 +133,6 @@ function fermerSuivi(id: number) {
       <UserPanel />
     </div>
 
-    <!-- HERO -->
     <div class="hero">
       <div class="hero-inner">
         <div>
@@ -153,9 +155,7 @@ function fermerSuivi(id: number) {
       </div>
     </div>
 
-    <!-- MAIN -->
     <div class="main wrap">
-      <!-- CARTE -->
       <div class="carte-col">
         <div class="filtres">
           <button class="filtre" :class="{ active: categorieActive === null }" @click="categorieActive = null">
@@ -188,9 +188,7 @@ function fermerSuivi(id: number) {
         </div>
       </div>
 
-      <!-- RAIL -->
       <div class="rail">
-        <!-- PIT TRACKERS -->
         <div
           v-for="commande in commandesSuivies" :key="commande.id"
           class="panel suivi-panel"
@@ -217,7 +215,6 @@ function fermerSuivi(id: number) {
           </div>
         </div>
 
-        <!-- GARAGE CART -->
         <div class="panel" :style="commandesSuivies.length ? 'margin-top:16px' : ''">
           <div class="panel-head">
             <span class="panel-title">GARAGE CART</span>
@@ -250,7 +247,6 @@ function fermerSuivi(id: number) {
       </div>
     </div>
 
-    <!-- TOAST -->
     <div v-if="toast" class="toast">⟫ {{ toast }} AJOUTÉ AU GARAGE</div>
   </div>
 </template>

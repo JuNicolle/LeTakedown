@@ -36,6 +36,7 @@ public class DataInitializer implements ApplicationRunner {
             utilisateurRepository.save(Utilisateur.builder()
                     .nom("BurnoutBar")
                     .prenom("BurnoutBar")
+                    .email("barmaker@burnoutbar.fr")
                     .motDePasse("Cheetah")
                     .role(Role.BARMAKER)
                     .build());
@@ -43,14 +44,12 @@ public class DataInitializer implements ApplicationRunner {
     }
 
     private void seedCatalog() {
-        // ── Catégories ──────────────────────────────────────────────────────
         Categorie signature   = cat("Signature");
         Categorie classiques  = cat("Classiques revisités");
         Categorie sansAlcool  = cat("Sans alcool");
         Categorie spritz      = cat("Spritz & Fraîcheur");
         Categorie shots       = cat("Shots");
 
-        // ── Ingrédients ─────────────────────────────────────────────────────
         Ingredient vodka          = ing("Vodka");
         Ingredient gin            = ing("Gin");
         Ingredient rhumBlanc      = ing("Rhum blanc");
@@ -85,9 +84,7 @@ public class DataInitializer implements ApplicationRunner {
         Ingredient bitter         = ing("Bitter");
         Ingredient cafeEspresso   = ing("Café espresso");
 
-        // ── Cocktails ───────────────────────────────────────────────────────
 
-        // Signature
         cocktail("Takedown Signature",
                 "Le cocktail emblématique du bar. Fruité, puissant et légèrement acidulé avec une finition flamboyante.",
                 signature, Set.of(vodka, purePassion, jusAnanas, jusCitronVert, siropVanille),
@@ -118,13 +115,11 @@ public class DataInitializer implements ApplicationRunner {
                 signature, Set.of(vodka, liqueurCafe, cafeEspresso, siropVanille),
                 null, 12.0, null);
 
-        // Spritz & Fraîcheur
         cocktail("Nitro Spritz",
                 "Version survitaminée du Spritz.",
                 spritz, Set.of(prosecco, eauGazeuse, orange),
                 null, 9.0, null);
 
-        // Classiques revisités
         cocktail("Apex Mojito",
                 "Un mojito revisité façon paddock.",
                 classiques, Set.of(rhumBlanc, menthe, citronVert, siropSucre, eauGazeuse),
@@ -135,7 +130,6 @@ public class DataInitializer implements ApplicationRunner {
                 classiques, Set.of(vodka, gingerBeer, jusCitronVert),
                 null, 10.0, 13.0);
 
-        // Sans alcool
         cocktail("Pit Stop Cooler",
                 "Cocktail sans alcool frais et fruité.",
                 sansAlcool, Set.of(jusAnanas, jusOrange, jusCranberry, eauGazeuse, citronVert),
@@ -146,7 +140,6 @@ public class DataInitializer implements ApplicationRunner {
                 sansAlcool, Set.of(concombre, basilic, jusCitron, eauGazeuse),
                 null, 7.0, null);
 
-        // Shots
         cocktail("NOS Shot",
                 "Petit mais explosif.",
                 shots, Set.of(vodka, grenadine),

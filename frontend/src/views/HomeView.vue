@@ -48,7 +48,6 @@ function goBarmaker() {
       <div class="barrier b2" />
     </div>
 
-    <!-- Topbar -->
     <div class="topbar">
       <div class="topbar-brand">
         <div class="topbar-mark">B</div>
@@ -59,7 +58,6 @@ function goBarmaker() {
       </div>
     </div>
 
-    <!-- Hero -->
     <div class="hero">
       <div class="hero-inner">
         <div>
@@ -69,7 +67,6 @@ function goBarmaker() {
       </div>
     </div>
 
-    <!-- Choices -->
     <div class="section-wrap">
       <div class="choices">
         <div class="choice" @click="goClient">
@@ -100,7 +97,6 @@ function goBarmaker() {
       </div>
     </div>
 
-    <!-- Menu consultatif -->
     <div class="menu-wrap">
      <div class="menu-inner">
       <div class="menu-header">
@@ -111,7 +107,6 @@ function goBarmaker() {
         <h2 class="menu-h2">LA CARTE</h2>
       </div>
 
-      <!-- Filtres catégories -->
       <div class="menu-filtres">
         <button class="mfiltre" :class="{ active: categorieActive === null }" @click="categorieActive = null">
           TOUS
@@ -126,7 +121,6 @@ function goBarmaker() {
         </button>
       </div>
 
-      <!-- Cocktails par catégorie -->
       <div v-if="cocktailsParCategorie.length === 0" class="menu-empty">CHARGEMENT...</div>
 
       <div v-for="{ cat, items } in cocktailsParCategorie" :key="cat.id" class="cat-block">

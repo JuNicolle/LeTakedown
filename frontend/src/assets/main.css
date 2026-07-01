@@ -12,14 +12,12 @@ body {
 
 ::selection { background: #FF2A1A; color: #fff; }
 
-/* ---- Keyframes ---- */
 @keyframes streak     { from { background-position: 0 0; } to { background-position: 560px 0; } }
 @keyframes blink      { 0%,55% { opacity: 1; } 56%,100% { opacity: .12; } }
 @keyframes readyPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(182,255,46,0); } 50% { box-shadow: 0 0 22px 2px rgba(182,255,46,.55); } }
 @keyframes boostBlink { 0%,100% { opacity: .35; } 50% { opacity: 1; } }
 @keyframes toastIn    { from { transform: translate(-50%,30px); opacity: 0; } to { transform: translate(-50%,0); opacity: 1; } }
 
-/* ---- Shared topbar ---- */
 .topbar {
   position: sticky; top: 0; z-index: 50;
   background: #101015; border-bottom: 2px solid #FF2A1A;
@@ -47,7 +45,6 @@ body {
 .topbar-pill span { font: 700 11px 'Chakra Petch'; letter-spacing: 1.5px; }
 .topbar-pill-n { font: 700 14px 'Space Mono' !important; }
 
-/* ---- Hero strip ---- */
 .hero {
   position: relative; overflow: hidden;
   background: rgba(16,16,21,0.55);
@@ -65,7 +62,6 @@ body {
 .hero-h1 { margin: 0; font: 900 clamp(28px,6vw,60px) 'Saira'; font-style: italic; letter-spacing: -2px; line-height: .85; text-shadow: 3px 0 #FF2A1A, -3px 0 #19C2FF; }
 .hero-h3 { margin: 0; font: 700 clamp(28px,6vw,60px) 'Saira'; font-style: italic; letter-spacing: -2px; line-height: .85; text-shadow: 3px 0 #FF2A1A, -3px 0 #19C2FF; }
 
-/* ---- Dark panel ---- */
 .panel {
   background: #1a1a21; border: 1.5px solid #2c2c36;
   border-top: 3px solid #FF2A1A; color: #F2EEE7;
@@ -78,7 +74,6 @@ body {
 .panel-title { font: 700 14px 'Chakra Petch'; letter-spacing: 2px; }
 .panel-body { padding: 6px 14px 14px; }
 
-/* ---- Buttons ---- */
 button { cursor: pointer; border: none; font-family: 'Chakra Petch'; }
 
 .btn-launch {
@@ -109,7 +104,6 @@ button { cursor: pointer; border: none; font-family: 'Chakra Petch'; }
   font: 700 16px 'Space Mono'; cursor: pointer; line-height: 1;
 }
 
-/* ---- Form ---- */
 .field { display: flex; flex-direction: column; gap: 0.35rem; }
 .field label { font: 700 10px 'Chakra Petch'; letter-spacing: 2px; color: #8a857a; }
 input, select, textarea {
@@ -122,15 +116,12 @@ input:focus, select:focus, textarea:focus { border-color: #FF2A1A; }
 input::placeholder { color: #3a3a46; }
 select option { background: #101015; }
 
-/* ---- Empty state ---- */
 .empty-state { text-align: center; padding: 30px 14px; color: #6f6a61; }
 .empty-h { font: 900 28px 'Saira'; font-style: italic; color: #3a3a46; }
 .empty-p { font: 500 12px 'Chakra Petch'; margin: 6px 0 0; }
 
-/* ---- Badge / tag ---- */
 .count-badge { font: 700 12px 'Space Mono'; color: #101015; background: #FF2A1A; padding: 3px 9px; }
 
-/* ---- Page shell (main content area) ---- */
 .page-cream {
   max-width: 100%; min-height: 100vh;
   background: #F2EEE7; position: relative;
@@ -140,10 +131,8 @@ select option { background: #101015; }
   background: #101015; position: relative;
 }
 
-/* ---- Max-width wrapper ---- */
 .wrap { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
 
-/* ---- Decor (background racing elements) ---- */
 .decor { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
 .decor-glow { position: absolute; inset: 0;
   background:
@@ -157,10 +146,8 @@ select option { background: #101015; }
   box-shadow: 0 -3px 0 0 #16161B, 0 3px 0 0 #16161B;
 }
 
-/* ---- Error ---- */
 .err { font: 700 11px 'Chakra Petch'; letter-spacing: 1px; color: #FF2A1A; margin-top: .4rem; }
 
-/* ---- Toast ---- */
 .toast {
   position: fixed; left: 50%; bottom: 26px; z-index: 80;
   transform: translateX(-50%);

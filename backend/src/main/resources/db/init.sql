@@ -1,4 +1,3 @@
--- Burnout Bar — Script d'initialisation de la base de données
 
 CREATE TABLE utilisateur (
     id            BIGSERIAL PRIMARY KEY,
@@ -61,28 +60,3 @@ CREATE TABLE ligne_commande (
                                           CHECK (statut IN ('PREPARATION_INGREDIENTS', 'ASSEMBLAGE', 'DRESSAGE', 'TERMINEE'))
 );
 
--- Données de test
-INSERT INTO utilisateur (nom, prenom, email, mot_de_passe, role) VALUES
-    ('Dupont', 'Alice', 'alice@bar.com', 'password', 'CLIENT'),
-    ('Martin', 'Bob',   'bob@bar.com',   'password', 'BARMAKER');
-
-INSERT INTO categorie (nom) VALUES ('Classiques'), ('Tropicaux'), ('Sans alcool');
-
-INSERT INTO cocktail (nom, description, categorie_id, disponible, ordre) VALUES
-    ('Mojito',      'Rhum, menthe, citron vert, sucre de canne, eau gazeuse', 1, TRUE, 1),
-    ('Margarita',   'Tequila, triple sec, jus de citron vert',                1, TRUE, 2),
-    ('Pina Colada', 'Rhum blanc, lait de coco, jus d ananas',                 2, TRUE, 3);
-
-INSERT INTO ingredient (nom) VALUES
-    ('Rhum'), ('Menthe'), ('Citron vert'), ('Sucre de canne'), ('Eau gazeuse'),
-    ('Tequila'), ('Triple sec'), ('Lait de coco'), ('Jus d ananas');
-
-INSERT INTO cocktail_ingredient (cocktail_id, ingredient_id) VALUES
-    (1, 1), (1, 2), (1, 3), (1, 4), (1, 5),
-    (2, 6), (2, 7), (2, 3),
-    (3, 1), (3, 8), (3, 9);
-
-INSERT INTO cocktail_prix (cocktail_id, taille, prix) VALUES
-    (1, 'S', 7.50),  (1, 'M', 9.00),  (1, 'L', 11.00),
-    (2, 'S', 8.00),  (2, 'M', 10.00), (2, 'L', 12.00),
-    (3, 'S', 7.00),  (3, 'M', 9.50),  (3, 'L', 11.50);
