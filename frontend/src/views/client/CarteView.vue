@@ -19,12 +19,10 @@ const categories = ref<CategorieResponse[]>([])
 const categorieActive = ref<number | null>(null)
 const loading = ref(true)
 const lancing = ref(false)
-const rpm = ref(920)
 const toast = ref('')
 const commandesSuivies = ref<CommandeResponse[]>([])
 const suiviReduits = ref<number[]>([])
 let toastTimer: ReturnType<typeof setTimeout> | null = null
-let rpmTimer: ReturnType<typeof setInterval> | null = null
 let suiviTimer: ReturnType<typeof setInterval> | null = null
 
 const cocktailsFiltres = computed(() =>
@@ -41,15 +39,9 @@ onMounted(async () => {
     try { panierStore.setPanier(await getPanier(auth.user.id)) } catch {}
   }
   loading.value = false
-  rpmTimer = setInterval(() => {
-    rpm.value = panierStore.nbArticles > 0
-      ? 1600 + Math.round(Math.random() * 2300)
-      : 880 + Math.round(Math.random() * 130)
-  }, 110)
 })
 
 onUnmounted(() => {
-  if (rpmTimer) clearInterval(rpmTimer)
   if (suiviTimer) clearInterval(suiviTimer)
 })
 
@@ -135,10 +127,6 @@ function fermerSuivi(id: number) {
         </div>
       </div>
       <div class="topbar-spacer" />
-      <!-- <div class="topbar-rpm">
-        <span class="topbar-rpm-l">RPM</span>
-        <span class="topbar-rpm-v">{{ rpm }}</span>
-      </div> -->
       <UserPanel />
     </div>
 
@@ -288,6 +276,18 @@ function fermerSuivi(id: number) {
 
 .carte-col { flex: 1; min-width: 320px; }
 
+@media (min-width: 769px) {
+  .rail { padding-top: 94px; }
+}
+
+@media (max-width: 768px) {
+  .hero { padding-bottom: 10px; }
+  .main { flex-direction: column; padding-top: 6px; gap: 8px; }
+  .rail { width: 100%; position: static; order: -1; }
+  .rail .panel:first-child { margin-top: 0; }
+}
+
+
 .filtres { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 20px; }
 
 .filtre {
@@ -305,7 +305,7 @@ function fermerSuivi(id: number) {
 
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
 .panel {margin-top: 12px;}
-.rail { width: 360px; position: sticky; align-self: flex-start; padding-top: 94px; }
+.rail { width: 360px; position: sticky; align-self: flex-start; }
 
 .cart-row { display: flex; align-items: center; gap: 10px; padding: 10px 4px; border-bottom: 1px solid #2c2c36; }
 .cart-accent { width: 4px; align-self: stretch; flex-shrink: 0; }

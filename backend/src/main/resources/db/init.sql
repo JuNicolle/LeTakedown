@@ -1,4 +1,4 @@
--- Bar'app — Script d'initialisation de la base de données
+-- Burnout Bar — Script d'initialisation de la base de données
 
 CREATE TABLE utilisateur (
     id            BIGSERIAL PRIMARY KEY,
@@ -19,7 +19,9 @@ CREATE TABLE cocktail (
     nom          VARCHAR(100) NOT NULL,
     description  TEXT,
     image_url    VARCHAR(500),
-    categorie_id BIGINT NOT NULL REFERENCES categorie(id) ON DELETE RESTRICT
+    categorie_id BIGINT  NOT NULL REFERENCES categorie(id) ON DELETE RESTRICT,
+    disponible   BOOLEAN NOT NULL DEFAULT TRUE,
+    ordre        INT     NOT NULL DEFAULT 999
 );
 
 CREATE TABLE ingredient (
@@ -66,10 +68,10 @@ INSERT INTO utilisateur (nom, prenom, email, mot_de_passe, role) VALUES
 
 INSERT INTO categorie (nom) VALUES ('Classiques'), ('Tropicaux'), ('Sans alcool');
 
-INSERT INTO cocktail (nom, description, categorie_id) VALUES
-    ('Mojito',      'Rhum, menthe, citron vert, sucre de canne, eau gazeuse', 1),
-    ('Margarita',   'Tequila, triple sec, jus de citron vert',                1),
-    ('Pina Colada', 'Rhum blanc, lait de coco, jus d ananas',                 2);
+INSERT INTO cocktail (nom, description, categorie_id, disponible, ordre) VALUES
+    ('Mojito',      'Rhum, menthe, citron vert, sucre de canne, eau gazeuse', 1, TRUE, 1),
+    ('Margarita',   'Tequila, triple sec, jus de citron vert',                1, TRUE, 2),
+    ('Pina Colada', 'Rhum blanc, lait de coco, jus d ananas',                 2, TRUE, 3);
 
 INSERT INTO ingredient (nom) VALUES
     ('Rhum'), ('Menthe'), ('Citron vert'), ('Sucre de canne'), ('Eau gazeuse'),
