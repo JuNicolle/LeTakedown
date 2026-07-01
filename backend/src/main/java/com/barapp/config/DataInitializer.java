@@ -5,6 +5,7 @@ import com.barapp.enums.Role;
 import com.barapp.enums.Taille;
 import com.barapp.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -25,6 +26,9 @@ public class DataInitializer implements ApplicationRunner {
     private final CocktailRepository cocktailRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
+    @Value("${app.barmaker.password:Cheetah}")
+    private String barmakerPassword;
+
     @Override
     public void run(ApplicationArguments args) {
         seedBarmaker();
@@ -39,7 +43,7 @@ public class DataInitializer implements ApplicationRunner {
                     .nom("BurnoutBar")
                     .prenom("BurnoutBar")
                     .email("barmaker@burnoutbar.fr")
-                    .motDePasse(passwordEncoder.encode("Cheetah"))
+                    .motDePasse(passwordEncoder.encode(barmakerPassword))
                     .role(Role.BARMAKER)
                     .build());
         }

@@ -1,5 +1,6 @@
 package com.barapp.service;
 
+import com.barapp.config.TokenStore;
 import com.barapp.dto.request.BarmakerLoginRequest;
 import com.barapp.dto.request.BarmakerRegisterRequest;
 import com.barapp.dto.request.ClientRequest;
@@ -18,6 +19,7 @@ public class UtilisateurService {
 
     private final UtilisateurRepository utilisateurRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final TokenStore tokenStore;
 
     public UtilisateurResponse rejoindreCommeClient(ClientRequest request) {
         String email = "client_" + java.util.UUID.randomUUID() + "@burnoutbar.fr";
@@ -43,7 +45,9 @@ public class UtilisateurService {
                 .motDePasse(passwordEncoder.encode(request.motDePasse()))
                 .role(Role.BARMAKER)
                 .build();
-        return UtilisateurResponse.from(utilisateurRepository.save(barmaker));
+        Utilisateur saved = utilisateurRepository.save(barmaker);
+        String token = tokenStore.generate(saved.getId(), saved.getRole());
+        return new UtilisateurResponse(saved.getId(), saved.getPrenom(), saved.getRole(), token);
     }
 
     public UtilisateurResponse loginBarmaker(BarmakerLoginRequest request) {
@@ -55,6 +59,7 @@ public class UtilisateurService {
             throw new IllegalStateException("Mot de passe incorrect");
         }
 
-        return UtilisateurResponse.from(barmaker);
+        String token = tokenStore.generate(barmaker.getId(), barmaker.getRole());
+        return new UtilisateurResponse(barmaker.getId(), barmaker.getPrenom(), barmaker.getRole(), token);
     }
 }
