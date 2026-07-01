@@ -153,6 +153,9 @@ function toggleIngredient(id: number) {
         </div>
       </div>
       <div class="topbar-spacer" />
+      <button class="topbar-pill" @click="router.push({ name: 'barmaker-equipe' })">
+        <span>ÉQUIPE</span>
+      </button>
       <button class="topbar-pill" @click="router.push({ name: 'barmaker-commandes' })">
         <span>← COMMANDES</span>
       </button>
@@ -317,6 +320,7 @@ function toggleIngredient(id: number) {
           </div>
         </div>
       </div>
+
     </div>
   </div>
 </template>

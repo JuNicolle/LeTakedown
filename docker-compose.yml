@@ -2,9 +2,9 @@ services:
   postgres:
     image: postgres:16
     environment:
-      POSTGRES_DB: barapp
-      POSTGRES_USER: barapp
-      POSTGRES_PASSWORD: barapp
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -16,9 +16,10 @@ services:
     ports:
       - "8080:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/barapp
-      SPRING_DATASOURCE_USERNAME: barapp
-      SPRING_DATASOURCE_PASSWORD: barapp
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      APP_BARMAKER_PASSWORD: ${BARMAKER_PASSWORD}
     depends_on:
       - postgres
 

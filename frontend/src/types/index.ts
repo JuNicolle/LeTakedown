@@ -7,6 +7,7 @@ export interface UtilisateurResponse {
   id: number
   prenom: string
   role: Role
+  token?: string
 }
 
 export interface CategorieResponse {

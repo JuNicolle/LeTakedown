@@ -63,6 +63,9 @@ async function avancer(commande: CommandeResponse, ligneId: number) {
       <button class="topbar-pill" @click="router.push({ name: 'barmaker-carte' })">
         <span>LA CARTE</span>
       </button>
+      <button class="topbar-pill" @click="router.push({ name: 'barmaker-equipe' })">
+        <span>ÉQUIPE</span>
+      </button>
       <button class="btn-dark" style="font-size:10px;letter-spacing:1.5px" @click="logout">DÉCO</button>
     </div>
 

@@ -126,3 +126,80 @@ com.barapp/
 - [ ] Scénario de démonstration (client + barmaker en simultané)
 - [ ] Zip du projet + README finalisé
 - [ ] Envoi du livrable avant le 02/07/2026 à 17h
+
+  ## Comment fonctionne la sécurité
+
+  ## 1. Le login
+
+  Quand le barmaker saisit son prénom + mot de passe, le frontend envoie POST /api/utilisateurs/barmaker/login.
+
+  Le backend vérifie le mot de passe avec BCrypt, puis génère un UUID aléatoire (ex: a3f7c2d1-...), le stocke dans le TokenStore associé à {userId, role: BARMAKER}, et le renvoie
+  dans la réponse JSON.
+
+  Le frontend reçoit ce token et le sauvegarde dans le localStorage du navigateur sous la clé barapp_token.
+
+  ---
+  ## 2. Chaque requête protégée
+
+  Quand le barmaker fait une action (créer un cocktail, valider une commande, etc.), le frontend utilise la fonction http() qui lit automatiquement le token dans le localStorage et
+  ajoute le header :
+
+  X-Auth-Token: a3f7c2d1-...
+
+  à chaque requête envoyée au backend.
+
+  ---
+  ## 3. L'intercepteur
+
+  Avant que la requête arrive au contrôleur, Spring passe par le BarmakerInterceptor. Il applique cette logique :
+
+  GET /api/cocktails     → laisser passer (public)
+  GET /api/categories    → laisser passer (public)
+  /panier/...            → laisser passer (client)
+  GET /api/commandes/42  → laisser passer (suivi client)
+
+  POST /api/cocktails    → vérifier le token
+  DELETE /api/cocktails  → vérifier le token
+  GET /api/commandes     → vérifier le token
+  PATCH .../avancer      → vérifier le token
+
+  Pour les requêtes qui nécessitent une vérification, il lit le header X-Auth-Token, cherche dans le TokenStore, et vérifie que le rôle est BARMAKER. Si le token est absent ou
+  invalide → 401. Si le rôle est mauvais → 403. Si tout est bon → la requête continue normalement vers le contrôleur.
+
+  ---
+  ## 4. Le logout
+
+  Le frontend efface le token du localStorage. Le token reste en mémoire côté serveur mais ne sera plus jamais envoyé donc inutilisable en pratique.
+
+  ---
+  Schéma complet
+
+  NAVIGATEUR                          BACKEND
+  ──────────────────────────────────────────────────
+  [Login form]
+    │
+    ├─ POST /barmaker/login ──────────► UtilisateurService
+    │                                     - vérifie BCrypt
+    │                                     - génère UUID token
+    │                                     - stocke dans TokenStore
+    │  ◄─ { id, prenom, role, token } ──
+    │
+    ├─ localStorage.setItem(token)
+    │
+  [Action barmaker : ex. créer cocktail]
+    │
+    ├─ POST /api/cocktails ──────────► BarmakerInterceptor
+    │   Header: X-Auth-Token: uuid      - trouve le token dans TokenStore
+    │                                   - vérifie role == BARMAKER
+    │                                   ↓
+    │                                  CocktailController
+    │                                   - crée le cocktail
+    │  ◄─ { cocktail créé } ──────────
+
+  ---
+  Ce que ça ne fait pas
+
+  - Pas d'expiration : le token est valide jusqu'au redémarrage du backend.
+  - Pas de persistance : redémarrer le backend invalide tous les tokens (reconnexion obligatoire).
+  - Pas de protection client : un client peut toujours appeler /api/commandes/panier/42 avec l'ID de quelqu'un d'autre — il n'y a pas de vérification que l'userId de l'URL
+  correspond à l'utilisateur connecté.

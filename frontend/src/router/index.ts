@@ -55,6 +55,12 @@ const router = createRouter({
       component: () => import('@/views/barmaker/CarteAdminView.vue'),
       meta: { requiresBarmaker: true },
     },
+    {
+      path: '/barmaker/equipe',
+      name: 'barmaker-equipe',
+      component: () => import('@/views/barmaker/EquipeView.vue'),
+      meta: { requiresBarmaker: true },
+    },
   ],
 })
 

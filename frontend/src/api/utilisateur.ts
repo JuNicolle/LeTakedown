@@ -1,4 +1,5 @@
 import type { UtilisateurResponse } from '@/types'
+import { http } from '@/api/http'
 
 async function post<T>(url: string, body: unknown): Promise<T> {
   const res = await fetch(url, {
@@ -22,5 +23,9 @@ export function loginBarmaker(prenom: string, motDePasse: string): Promise<Utili
 }
 
 export function registerBarmaker(prenom: string, motDePasse: string): Promise<UtilisateurResponse> {
-  return post('/api/utilisateurs/barmaker/register', { prenom, motDePasse })
+  return http('/api/utilisateurs/barmaker/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prenom, motDePasse }),
+  })
 }

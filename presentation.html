@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Burnout Bar — Présentation CDA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Saira:ital,wght@0,400;0,900;1,900&family=Chakra+Petch:wght@400;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --red:#FF2A1A; --blue:#19C2FF; --green:#B6FF2E; --orange:#FF7A00;
+    --cream:#F2EEE7; --dark:#0e0e13; --panel:#1a1a21; --border:#2c2c36; --muted:#6f6a61;
+  }
+  html,body { width:100%; height:100%; background:#000; overflow:hidden; }
+  .deck { width:100vw; height:100vh; position:relative; }
+  .slide {
+    position:absolute; inset:0; display:none; flex-direction:column;
+    background:var(--dark); font-family:'Chakra Petch',sans-serif;
+    color:var(--cream); padding:52px 80px; overflow:hidden;
+  }
+  .slide.active { display:flex; }
+  .slide::before {
+    content:''; position:absolute; inset:0; pointer-events:none;
+    background:
+      radial-gradient(700px circle at 90% 10%,rgba(255,42,26,.10),transparent 55%),
+      radial-gradient(500px circle at 5% 80%,rgba(25,194,255,.07),transparent 55%);
+  }
+  .stripe { position:absolute; opacity:.35; background:repeating-linear-gradient(45deg,#16161B 0 14px,#FFC400 14px 28px); height:18px; }
+  .slide-num { position:absolute; bottom:28px; right:80px; font:700 11px 'Space Mono'; color:var(--muted); letter-spacing:2px; }
+  #progress { position:fixed; bottom:0; left:0; height:3px; background:var(--red); transition:width .3s; z-index:99; }
+  #nav-hint { position:fixed; bottom:16px; left:50%; transform:translateX(-50%); font:700 9px 'Chakra Petch'; letter-spacing:2px; color:var(--muted); z-index:99; }
+
+  /* TYPO */
+  .eyebrow { font:600 11px 'Chakra Petch'; letter-spacing:4px; color:var(--orange); display:flex; align-items:center; gap:10px; margin-bottom:14px; }
+  .blink { width:7px; height:7px; border-radius:50%; background:var(--red); display:inline-block; animation:blink 1s infinite; }
+  @keyframes blink { 0%,100%{opacity:1}50%{opacity:0} }
+  h1 { font:900 clamp(56px,8vw,100px) 'Saira'; font-style:italic; letter-spacing:-4px; line-height:.85; }
+  h2 { font:900 clamp(32px,4.5vw,58px) 'Saira'; font-style:italic; letter-spacing:-2px; line-height:.9; margin-bottom:26px; }
+  .accent{color:var(--red)} .blue{color:var(--blue)} .green{color:var(--green)} .orange-c{color:var(--orange)}
+
+  /* COVER */
+  .slide-cover { justify-content:center; }
+  .cover-tag { display:inline-block; background:var(--red); color:#101015; font:700 10px 'Chakra Petch'; letter-spacing:3px; padding:4px 12px; margin-bottom:24px; }
+  .cover-meta { margin-top:36px; display:flex; gap:28px; }
+  .meta-block { border-left:3px solid var(--border); padding-left:16px; }
+  .meta-label { font:600 9px 'Chakra Petch'; letter-spacing:2px; color:var(--muted); margin-bottom:4px; }
+  .meta-value { font:700 14px 'Space Mono'; color:var(--cream); }
+
+  /* LAYOUT */
+  .cols { display:flex; gap:32px; flex:1; align-items:flex-start; }
+  .col { flex:1; }
+  .col-wide { flex:1.4; }
+
+  /* CARDS */
+  .card { background:var(--panel); border:1.5px solid var(--border); padding:16px 20px; margin-bottom:12px; border-left:4px solid var(--red); }
+  .card.blue{border-left-color:var(--blue)} .card.green{border-left-color:var(--green)} .card.orange{border-left-color:var(--orange)}
+  .card-title { font:700 9px 'Chakra Petch'; letter-spacing:3px; color:var(--muted); margin-bottom:8px; }
+  .card-body { font:400 13px 'Chakra Petch'; line-height:1.6; color:var(--cream); }
+  .card-body strong{color:var(--red);font-weight:700}
+  .card-body .b{color:var(--blue);font-weight:700} .card-body .g{color:var(--green);font-weight:700} .card-body .o{color:var(--orange);font-weight:700}
+
+  /* STEPS */
+  .steps { display:flex; flex-direction:column; gap:8px; }
+  .step { display:flex; align-items:flex-start; gap:14px; background:var(--panel); border:1.5px solid var(--border); padding:12px 16px; }
+  .step-num { font:700 18px 'Space Mono'; color:var(--red); flex-shrink:0; width:24px; line-height:1; }
+  .step-text { font:400 12px 'Chakra Petch'; line-height:1.5; color:var(--cream); }
+  .step-text strong { color:var(--cream); font-weight:700; display:block; margin-bottom:2px; }
+
+  /* PILLS */
+  .pills { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:22px; }
+  .pill-tag { background:var(--panel); border:1.5px solid var(--border); font:700 10px 'Chakra Petch'; letter-spacing:2px; color:var(--cream); padding:5px 12px; }
+  .pill-tag.red{border-color:var(--red);color:var(--red)} .pill-tag.blue{border-color:var(--blue);color:var(--blue)}
+  .pill-tag.green{border-color:var(--green);color:var(--green)} .pill-tag.orange{border-color:var(--orange);color:var(--orange)}
+
+  /* CODE */
+  .code { background:#08080d; border:1px solid var(--border); font:700 12px 'Space Mono'; color:var(--green); padding:14px 18px; line-height:1.85; margin-top:10px; }
+  .code .cm{color:var(--muted)} .code .r{color:var(--red)} .code .b{color:var(--blue)} .code .o{color:var(--orange)} .code .w{color:var(--cream)}
+
+  /* SCHEMA */
+  .schema { display:flex; align-items:center; justify-content:center; gap:0; flex:1; padding:16px 0; }
+  .schema-box { background:var(--panel); border:1.5px solid var(--border); padding:14px 18px; text-align:center; }
+  .schema-box .snom { font:900 16px 'Saira'; font-style:italic; display:block; margin-bottom:4px; }
+  .schema-box .stag { font:600 8px 'Chakra Petch'; letter-spacing:1px; color:var(--muted); }
+  .schema-arrow { font:700 18px 'Space Mono'; color:var(--red); padding:0 10px; }
+
+  /* STATS */
+  .stats { display:flex; gap:16px; margin-top:6px; }
+  .stat { flex:1; background:var(--panel); border:1.5px solid var(--border); padding:20px; text-align:center; }
+  .stat-n { font:700 44px 'Space Mono'; line-height:1; margin-bottom:6px; }
+  .stat-l { font:600 9px 'Chakra Petch'; letter-spacing:2px; color:var(--muted); }
+
+  /* FINAL GRID */
+  .final-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; flex:1; align-content:start; }
+
+  /* MCD */
+  .mcd { display:flex; gap:12px; flex:1; align-items:center; justify-content:center; flex-wrap:wrap; }
+  .entity { background:var(--panel); border:1.5px solid var(--border); padding:10px 14px; min-width:130px; }
+  .entity-name { font:900 13px 'Saira'; font-style:italic; border-bottom:1px solid var(--border); padding-bottom:6px; margin-bottom:8px; }
+  .entity-field { font:400 10px 'Space Mono'; color:var(--muted); line-height:1.8; }
+  .entity-field .pk { color:var(--orange); font-weight:700; }
+  .entity-field .fk { color:var(--blue); }
+  .rel { font:700 9px 'Chakra Petch'; letter-spacing:1px; color:var(--muted); display:flex; align-items:center; gap:4px; flex-direction:column; }
+  .rel-line { width:1px; height:20px; background:var(--border); }
+
+  /* PALETTE */
+  .palette { display:flex; gap:12px; margin-bottom:20px; }
+  .swatch { display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .swatch-color { width:56px; height:56px; border:1.5px solid rgba(255,255,255,.1); }
+  .swatch-label { font:700 9px 'Space Mono'; color:var(--muted); }
+
+  /* FONT SAMPLE */
+  .font-samples { display:flex; flex-direction:column; gap:10px; }
+  .font-row { background:var(--panel); border:1.5px solid var(--border); padding:12px 16px; display:flex; align-items:center; gap:16px; }
+  .font-name { font:700 9px 'Chakra Petch'; letter-spacing:2px; color:var(--muted); min-width:100px; }
+
+  /* TEST ANNOT */
+  .test-wrap { display:flex; gap:24px; flex:1; align-items:flex-start; }
+  .test-code { flex:1.2; }
+  .test-annots { flex:1; display:flex; flex-direction:column; gap:10px; }
+  .annot { background:var(--panel); border-left:3px solid var(--orange); padding:10px 14px; }
+  .annot-title { font:700 9px 'Chakra Petch'; letter-spacing:2px; color:var(--orange); margin-bottom:4px; }
+  .annot-body { font:400 12px 'Chakra Petch'; line-height:1.5; color:var(--cream); }
+
+  /* DEP TABLE */
+  .dep-table { width:100%; border-collapse:collapse; font:400 12px 'Chakra Petch'; }
+  .dep-table th { font:700 9px 'Chakra Petch'; letter-spacing:3px; color:var(--muted); text-align:left; padding:8px 12px; border-bottom:1px solid var(--border); }
+  .dep-table td { padding:9px 12px; border-bottom:1px solid #1e1e28; line-height:1.4; vertical-align:top; }
+  .dep-table tr:hover td { background:var(--panel); }
+  .dep-name { font:700 12px 'Space Mono'; white-space:nowrap; }
+  .dep-back { color:var(--red); } .dep-front { color:var(--blue); } .dep-test { color:var(--green); }
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<div id="nav-hint">← → FLÈCHES POUR NAVIGUER · ESPACE POUR AVANCER</div>
+<div class="deck" id="deck">
+
+<!-- 01 COVER -->
+<div class="slide slide-cover active">
+  <div class="stripe" style="top:180px;right:-60px;width:480px;transform:rotate(8deg)"></div>
+  <div class="stripe" style="bottom:140px;left:-60px;width:400px;transform:rotate(-6deg)"></div>
+  <div style="position:relative;z-index:1">
+    <div class="cover-tag">PROJET CDA — CONCEPTEUR DÉVELOPPEUR D'APPLICATIONS</div>
+    <h1>BURNOUT<br/><span class="accent">BAR.</span></h1>
+    <p style="font:400 14px 'Chakra Petch';color:var(--muted);margin-top:14px;letter-spacing:2px">Application de commande et suivi de cocktails en temps réel</p>
+    <div class="cover-meta">
+      <div class="meta-block"><div class="meta-label">CANDIDAT</div><div class="meta-value">Julien Nicolle</div></div>
+      <div class="meta-block"><div class="meta-label">DATE</div><div class="meta-value">02 / 07 / 2026</div></div>
+      <div class="meta-block"><div class="meta-label">FORMATION</div><div class="meta-value">ForEach Academy</div></div>
+    </div>
+  </div>
+  <div class="slide-num">01 / 15</div>
+</div>
+
+<!-- 02 LE PROJET -->
+<div class="slide">
+  <div class="eyebrow"><span class="blink"></span>CONTEXTE</div>
+  <h2>LE <span class="accent">PROJET</span></h2>
+  <div class="cols">
+    <div class="col">
+      <div class="card">
+        <div class="card-title">CONCEPT</div>
+        <div class="card-body">Application web de commande de cocktails sur thème <strong>Burnout / Racing PS2</strong>. Le client commande depuis son téléphone, le barmaker prépare et fait avancer chaque étape en temps réel.</div>
+      </div>
+      <div class="card blue">
+        <div class="card-title">RÔLE CLIENT</div>
+        <div class="card-body">Consulter la carte · Composer un panier · Lancer une commande · Suivre la préparation (<span class="b">PitTracker</span>)</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card orange">
+        <div class="card-title">RÔLE BARMAKER</div>
+        <div class="card-body">Voir toutes les commandes · Avancer les étapes · Administrer la carte · Gérer l'équipe</div>
+      </div>
+      <div class="card green">
+        <div class="card-title">THÈME GRAPHIQUE</div>
+        <div class="card-body">Univers racing : <span class="g">Pit Lane</span>, Garage Cart, PitTracker, Takedown Signature — immersion totale dans l'ambiance du bar.</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">02 / 15</div>
+</div>
+
+<!-- 03 DESIGN -->
+<div class="slide">
+  <div class="eyebrow"><span class="blink"></span>UI / UX</div>
+  <h2>DESIGN <span class="accent">&amp;</span> IDENTITÉ</h2>
+  <div class="cols">
+    <div class="col">
+      <div class="card-title" style="margin-bottom:12px">PALETTE DE COULEURS</div>
+      <div class="palette">
+        <div class="swatch"><div class="swatch-color" style="background:#FF2A1A"></div><div class="swatch-label">#FF2A1A<br/>ROUGE</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#19C2FF"></div><div class="swatch-label">#19C2FF<br/>BLEU</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#B6FF2E"></div><div class="swatch-label">#B6FF2E<br/>VERT</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FF7A00"></div><div class="swatch-label">#FF7A00<br/>ORANGE</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#0e0e13;border-color:#3a3a46"></div><div class="swatch-label">#0E0E13<br/>DARK</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#F2EEE7"></div><div class="swatch-label">#F2EEE7<br/>CRÈME</div></div>
+      </div>
+      <div class="card green" style="margin-top:4px">
+        <div class="card-title">ACCESSIBILITÉ</div>
+        <div class="card-body">Tous les contrastes texte/fond respectent le ratio <span class="g">WCAG AA (4.5:1 minimum)</span>. Indicateurs focus-visible sur tous les éléments interactifs.</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card-title" style="margin-bottom:12px">TYPOGRAPHIES</div>
+      <div class="font-samples">
+        <div class="font-row">
+          <div class="font-name">SAIRA ITALIC</div>
+          <div style="font:900 28px 'Saira';font-style:italic;letter-spacing:-1px;color:var(--cream)">TAKEDOWN.</div>
+        </div>
+        <div class="font-row">
+          <div class="font-name">CHAKRA PETCH</div>
+          <div style="font:700 13px 'Chakra Petch';letter-spacing:2px;color:var(--cream)">INTERFACE · LABELS · CORPS</div>
+        </div>
+        <div class="font-row">
+          <div class="font-name">SPACE MONO</div>
+          <div style="font:700 16px 'Space Mono';color:var(--cream)">9.50€ · #42 · 1:23</div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:12px">
+        <div class="card-title">RESPONSIVE</div>
+        <div class="card-body">Layout mobile-first : le Garage Cart et le PitTracker passent au-dessus de la carte sur petit écran via <strong>CSS order</strong> dans un media query.</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">03 / 15</div>
+</div>
+
+<!-- 04 STACK -->
+<div class="slide">
+  <div class="eyebrow"><span class="blink"></span>TECHNIQUE</div>
+  <h2>STACK <span class="accent">TECH</span></h2>
+  <div class="pills">
+    <span class="pill-tag red">Java 21</span><span class="pill-tag red">Spring Boot 3.5</span>
+    <span class="pill-tag blue">Vue 3 · TypeScript</span><span class="pill-tag blue">Pinia · Vue Router</span>
+    <span class="pill-tag green">PostgreSQL 16</span><span class="pill-tag orange">Docker · Compose</span>
+  </div>
+  <div class="cols">
+    <div class="col">
+      <div class="card">
+        <div class="card-title">BACKEND</div>
+        <div class="card-body"><strong>Spring Boot</strong> expose une API REST (JPA, Validation, Web).<br/>Entités : Cocktail, Commande, LigneCommande, Utilisateur, Catégorie, Ingrédient.<br/>Architecture : Controller → Service → Repository.</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card blue">
+        <div class="card-title">FRONTEND</div>
+        <div class="card-body"><span class="b">Vue 3</span> Composition API avec TypeScript.<br/><span class="b">Pinia</span> pour l'état global (auth, panier).<br/>Vite pour le build, Nginx pour servir en production.</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">04 / 15</div>
+</div>
+
+<!-- 05 DÉPENDANCES -->
+<div class="slide">
+  <div class="eyebrow"><span class="blink"></span>LIBRAIRIES</div>
+  <h2>DÉPENDANCES <span class="accent">CLÉS</span></h2>
+  <table class="dep-table">
+    <thead>
+      <tr><th>DÉPENDANCE</th><th>RÔLE</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="dep-name dep-back">spring-boot-starter-web</span></td><td>Expose les endpoints REST via un serveur Tomcat embarqué — le cœur de l'API.</td></tr>
+      <tr><td><span class="dep-name dep-back">spring-boot-starter-data-jpa</span></td><td>Dialogue avec PostgreSQL via Hibernate. Transforme les objets Java en lignes SQL automatiquement.</td></tr>
+      <tr><td><span class="dep-name dep-back">spring-security-crypto</span></td><td>Fournit <strong style="color:var(--red)">BCryptPasswordEncoder</strong> pour hasher les mots de passe — sans activer toute la stack Spring Security.</td></tr>
+      <tr><td><span class="dep-name dep-back">lombok</span></td><td>Génère @Getter, @Builder, @RequiredArgsConstructor à la compilation. Élimine le boilerplate Java.</td></tr>
+      <tr><td><span class="dep-name dep-front">vue + pinia + vue-router</span></td><td>Le trio frontend : rendu réactif, état global partagé, navigation SPA sans rechargement.</td></tr>
+      <tr><td><span class="dep-name dep-test">spring-boot-starter-test</span></td><td>Bundle JUnit 5 + Mockito + AssertJ + MockMvc — tout le nécessaire pour les 58 tests backend.</td></tr>
+    </tbody>
+  </table>
+  <div class="slide-num">05 / 15</div>
+</div>
+
+<!-- 06 ARCHITECTURE -->
+<div class="slide">
+  <div class="eyebrow"><span class="blink"></span>ARCHITECTURE</div>
+  <h2>SCHÉMA <span class="blue">GLOBAL</span></h2>
+  <div class="schema">
+    <div class="schema-box" style="border-color:var(--blue)"><span class="snom" style="color:var(--blue)">Vue 3</span><span class="stag">NAVIGATEUR</span></div>
+    <div class="schema-arrow">→</div>
+    <div class="schema-box"><span class="snom">Nginx</span><span class="stag">REVERSE PROXY · :80</span></div>
+    <div class="schema-arrow">→</div>
+    <div class="schema-box" style="border-color:var(--red)"><span class="snom" style="color:var(--red)">Spring Boot</span><span class="stag">API REST · :8080</span></div>
+    <div class="schema-arrow">→</div>
+    <div class="schema-box" style="border-color:var(--green)"><span class="snom" style="color:var(--green)">PostgreSQL</span><span class="stag">BASE · :5432</span></div>
+  </div>
+  <div class="code">
+    <span class="cm"># Un seul fichier pour tout orchestrer</span><br/>
+    <span class="r">docker</span> compose up <span class="b">--build</span><span class="cm">  →  http://localhost</span>
+  </div>
+  <div class="slide-num">06 / 15</div>
+</div>
+
+<!-- 07 BDD / MCD -->
+<div class="slide">
+  <div class="eyebrow"><span class="blink"></span>BASE DE DONNÉES</div>
+  <h2>MODÈLE <span class="green">DE DONNÉES</span></h2>
+  <div class="cols" style="flex:1;gap:16px">
+    <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+      <div class="entity" style="border-color:var(--orange)">
+        <div class="entity-name" style="color:var(--orange)">UTILISATEUR</div>
+        <div class="entity-field"><span class="pk">PK id</span> · nom · prenom<br/>email · mot_de_passe · <span style="color:var(--red)">role</span></div>
+      </div>
+      <div style="text-align:center;font:700 11px 'Space Mono';color:var(--muted)">1 ↓ N</div>
+      <div class="entity" style="border-color:var(--red)">
+        <div class="entity-name" style="color:var(--red)">COMMANDE</div>
+        <div class="entity-field"><span class="pk">PK id</span> · <span class="fk">FK utilisateur_id</span><br/>statut · date_creation</div>
+      </div>
+      <div style="text-align:center;font:700 11px 'Space Mono';color:var(--muted)">1 ↓ N</div>
+      <div class="entity" style="border-color:var(--red)">
+        <div class="entity-name" style="color:var(--red)">LIGNE_COMMANDE</div>
+        <div class="entity-field"><span class="pk">PK id</span> · <span class="fk">FK commande_id</span><br/><span class="fk">FK cocktail_id</span> · taille · statut</div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;padding:0 8px">
+      <div style="font:700 18px 'Space Mono';color:var(--border)">←</div>
+      <div style="font:700 9px 'Chakra Petch';color:var(--muted);letter-spacing:1px;writing-mode:vertical-rl">N COCKTAILS</div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+      <div class="entity" style="border-color:var(--blue)">
+        <div class="entity-name" style="color:var(--blue)">COCKTAIL</div>
+        <div class="entity-field"><span class="pk">PK id</span> · nom · description<br/><span class="fk">FK categorie_id</span> · disponible · ordre</div>
+      </div>
+      <div style="text-align:center;font:700 11px 'Space Mono';color:var(--muted)">1 ↓ N</div>
+      <div class="entity" style="border-color:var(--blue)">
+        <div class="entity-name" style="color:var(--blue)">COCKTAIL_PRIX</div>
+        <div class="entity-field"><span class="pk">PK id</span> · <span class="fk">FK cocktail_id</span><br/>taille (S/M/L) · prix</div>
+      </div>
+      <div style="text-align:center;font:700 11px 'Space Mono';color:var(--muted)">N ↔ N</div>
+      <div class="entity" style="border-color:var(--green)">
+        <div class="entity-name" style="color:var(--green)">INGREDIENT</div>
+        <div class="entity-field"><span class="pk">PK id</span> · nom<br/><span style="color:var(--muted);font-size:9px">via cocktail_ingredient</span></div>
+      </div>
+      <div style="text-align:center;font:700 11px 'Space Mono';color:var(--muted)">N ↑ 1</div>
+      <div class="entity">
+        <div class="entity-name">CATEGORIE</div>
+        <div class="entity-field"><span class="pk">PK id</span> · nom</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">07 / 15</div>
+</div>
+
+<!-- 08 PARCOURS CLIENT -->
+<div class="slide">
+  <div class="eyebrow"><span class="blink"></span>FONCTIONNALITÉS</div>
+  <h2>PARCOURS <span class="blue">CLIENT</span></h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-text"><strong>ONBOARDING</strong>Le client saisit son prénom. Un compte anonyme est créé automatiquement (email UUID généré côté serveur).</div>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-text"><strong>CARTE INTERACTIVE</strong>Filtres par catégorie, cocktails disponibles uniquement affichés, choix de taille (S/M/L), ajout au Garage Cart.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-text"><strong>COMMANDE</strong>Validation du panier → commande envoyée en base, statut passe de PANIER à COMMANDEE.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <div class="step-text"><strong>PITTRACKER</strong>Polling toutes les 5 secondes. Chaque ligne progresse : PREPARATION → ASSEMBLAGE → DRESSAGE → TERMINÉE.</div>
+    </div>
+  </div>
+  <div class="slide-num">08 / 15</div>
+</div>
+
+<!-- 09 PARCOURS BARMAKER -->
+<div class="slide">
+  <div class="eyebrow"><span class="blink"></span>FONCTIONNALITÉS</div>
+  <h2>PARCOURS <span class="accent">BARMAKER</span></h2>
+  <div class="cols">
+    <div class="col">
+      <div class="steps">
+        <div class="step">
+          <div class="step-num" style="color:var(--orange)">01</div>
+          <div class="step-text"><strong>DASHBOARD COMMANDES</strong>Vue temps réel de toutes les commandes actives avec leurs lignes et statuts.</div>
+        </div>
+        <div class="step">
+          <div class="step-num" style="color:var(--orange)">02</div>
+          <div class="step-text"><strong>AVANCEMENT</strong>Bouton par ligne pour faire progresser l'étape. Quand toutes les lignes sont TERMINÉES → commande TERMINÉE.</div>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="steps">
+        <div class="step">
+          <div class="step-num" style="color:var(--orange)">03</div>
+          <div class="step-text"><strong>ADMIN CARTE</strong>Créer, modifier, supprimer cocktails / catégories / ingrédients. Mettre un cocktail en pause.</div>
+        </div>
+        <div class="step">
+          <div class="step-num" style="color:var(--orange)">04</div>
+          <div class="step-text"><strong>GESTION ÉQUIPE</strong>Créer des comptes barmaker pour les collègues depuis une page dédiée, accessible uniquement aux barmakers connectés.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">09 / 15</div>
+</div>
+
+<!-- 10 SÉCURITÉ -->
+<div class="slide">
+  <div class="eyebrow"><span class="blink"></span>SÉCURITÉ</div>
+  <h2>PROTECTION <span class="accent">DES DONNÉES</span></h2>
+  <div class="cols">
+    <div class="col">
+      <div class="card">
+        <div class="card-title">MOTS DE PASSE — BCRYPT</div>
+        <div class="card-body">Les mots de passe sont <strong>hachés avec BCrypt</strong> avant stockage. Impossible de retrouver le mot de passe original depuis la base.</div>
+      </div>
+      <div class="code" style="font-size:11px">
+        <span class="cm"># En base de données</span><br/>
+        mot_de_passe → <span style="color:var(--green)">$2a$10$xK9...</span>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card orange">
+        <div class="card-title">ENDPOINTS — INTERCEPTEUR SPRING MVC</div>
+        <div class="card-body">Au login → token UUID généré, stocké en mémoire.<br/>Chaque requête barmaker envoie le header <span class="o">X-Auth-Token</span>.<br/>L'intercepteur vérifie le token et le rôle avant d'atteindre le contrôleur.</div>
+      </div>
+      <div class="card green">
+        <div class="card-title">SÉPARATION DES ACCÈS</div>
+        <div class="card-body">
+          <span class="g">Public</span> : GET catalogue, login.<br/>
+          <span class="o">Client</span> : opérations panier, suivi.<br/>
+          <span class="r">Barmaker</span> : admin carte, commandes, équipe.
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">10 / 15</div>
+</div>
+
+<!-- 11 TESTS -->
+<div class="slide">
+  <div class="eyebrow"><span class="blink"></span>QUALITÉ</div>
+  <h2><span class="green">58 TESTS</span> BACKEND</h2>
+  <div class="stats">
+    <div class="stat"><div class="stat-n" style="color:var(--red)">36</div><div class="stat-l">TESTS UNITAIRES · MOCKITO</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--blue)">22</div><div class="stat-l">TESTS CONTRÔLEURS · MOCKMVC</div></div>
+    <div class="stat"><div class="stat-n" style="color:var(--green)">0</div><div class="stat-l">ÉCHECS</div></div>
+  </div>
+  <div class="cols" style="margin-top:18px">
+    <div class="col">
+      <div class="card">
+        <div class="card-title">SERVICES TESTÉS (MOCKITO)</div>
+        <div class="card-body">CocktailService · CategorieService · IngredientService · CommandeService<br/><br/>Chaque méthode couverte : cas nominal, ID inconnu, état invalide.</div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card blue">
+        <div class="card-title">CONTRÔLEURS TESTÉS (MOCKMVC)</div>
+        <div class="card-body">CocktailController · CategorieController · IngredientController<br/><br/>Codes HTTP vérifiés : 200, 201, 204, 400, 404.</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">11 / 15</div>
+</div>
+
+<!-- 12 TEST JAVA EXPLIQUÉ -->
+<div class="slide">
+  <div class="eyebrow"><span class="blink"></span>ZOOM TEST</div>
+  <h2>UN TEST <span class="accent">DÉCORTIQUÉ</span></h2>
+  <div class="test-wrap">
+    <div class="test-code">
+      <div class="code" style="font-size:11px;line-height:1.75">
+<span class="cm">// CommandeServiceTest.java</span><br/>
+<span class="b">@Test</span><br/>
+<span class="w">void</span> avancerLigne_allTerminee_commandeTerminee() {<br/>
+&nbsp;&nbsp;<span class="cm">// 1. Prépare les données</span><br/>
+&nbsp;&nbsp;Commande commande = Commande.builder()<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;.id(1L).statut(<span class="o">EN_COURS</span>).build();<br/>
+&nbsp;&nbsp;LigneCommande ligne = LigneCommande.builder()<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;.statut(<span class="o">DRESSAGE</span>).build();<br/>
+&nbsp;&nbsp;commande.getLignes().add(ligne);<br/>
+<br/>
+&nbsp;&nbsp;<span class="cm">// 2. Configure les mocks</span><br/>
+&nbsp;&nbsp;<span class="b">when</span>(commandeRepository.findById(1L))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;.thenReturn(<span class="b">Optional.of</span>(commande));<br/>
+&nbsp;&nbsp;<span class="b">when</span>(ligneRepository.existsByCommandeIdAndStatutNot(...))<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;.thenReturn(<span class="r">false</span>); <span class="cm">// plus de ligne active</span><br/>
+<br/>
+&nbsp;&nbsp;<span class="cm">// 3. Exécute</span><br/>
+&nbsp;&nbsp;commandeService.avancerLigne(1L, 1L);<br/>
+<br/>
+&nbsp;&nbsp;<span class="cm">// 4. Vérifie</span><br/>
+&nbsp;&nbsp;<span class="b">assertThat</span>(commande.getStatut())<br/>
+&nbsp;&nbsp;&nbsp;&nbsp;.isEqualTo(<span class="o">TERMINEE</span>);<br/>
+}
+      </div>
+    </div>
+    <div class="test-annots">
+      <div class="annot">
+        <div class="annot-title">① ARRANGE</div>
+        <div class="annot-body">On construit les objets dont le service a besoin : une commande EN_COURS avec une ligne en DRESSAGE (dernière étape avant TERMINÉE).</div>
+      </div>
+      <div class="annot">
+        <div class="annot-title">② MOCK</div>
+        <div class="annot-body">Le repository est simulé — il retourne nos objets sans toucher à aucune base de données. Le test est isolé et ultra-rapide.</div>
+      </div>
+      <div class="annot">
+        <div class="annot-title">③ ACT</div>
+        <div class="annot-body">On appelle la vraie méthode du service. C'est elle qui contient la logique métier à valider.</div>
+      </div>
+      <div class="annot">
+        <div class="annot-title">④ ASSERT — LA RÈGLE MÉTIER</div>
+        <div class="annot-body">Quand toutes les lignes sont TERMINÉES, la commande passe automatiquement à TERMINÉE. C'est la règle testée.</div>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">12 / 15</div>
+</div>
+
+<!-- 13 DOCKER -->
+<div class="slide">
+  <div class="eyebrow"><span class="blink"></span>DÉPLOIEMENT</div>
+  <h2>DOCKER <span class="green">COMPOSE</span></h2>
+  <div class="cols">
+    <div class="col">
+      <div class="steps">
+        <div class="step"><div class="step-num" style="color:var(--green)">🐘</div><div class="step-text"><strong>PostgreSQL 16</strong>Base de données. Initialisée via init.sql au premier démarrage. Données persistées dans un volume.</div></div>
+        <div class="step"><div class="step-num" style="color:var(--green)">☕</div><div class="step-text"><strong>Spring Boot</strong>Build multi-étapes Maven → JAR → JRE Alpine. Image légère et autonome.</div></div>
+        <div class="step"><div class="step-num" style="color:var(--green)">⚡</div><div class="step-text"><strong>Nginx + Vue 3</strong>Build Vite → fichiers statiques. Nginx sert le frontend et proxifie /api/ vers le backend.</div></div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card green">
+        <div class="card-title">VARIABLES D'ENVIRONNEMENT</div>
+        <div class="card-body">Toutes les valeurs sensibles dans <span class="g">.env</span> (non versionné). Un <span class="g">.env.example</span> fourni comme template. En production : changer le .env, relancer. Le code ne change pas.</div>
+      </div>
+      <div class="code" style="margin-top:12px;font-size:12px">
+        <span class="r">docker</span> compose up <span class="b">--build</span><br/>
+        <span class="cm"># → http://localhost</span>
+      </div>
+    </div>
+  </div>
+  <div class="slide-num">13 / 15</div>
+</div>
+
+<!-- 14 AMÉLIORATIONS -->
+<div class="slide">
+  <div class="eyebrow"><span class="blink"></span>PERSPECTIVES</div>
+  <h2>CE QUE <span class="accent">J'AMÉLIORERAIS</span></h2>
+  <div class="final-grid">
+    <div class="card"><div class="card-title">JWT AVEC EXPIRATION</div><div class="card-body">Remplacer les tokens UUID en mémoire par des <strong>JWT signés</strong> avec durée de vie. Ils survivraient aux redémarrages et expireraient automatiquement.</div></div>
+    <div class="card blue"><div class="card-title">PROTECTION CLIENT</div><div class="card-body">Vérifier que l'userId de l'URL correspond au client connecté — actuellement un client peut accéder au panier d'un autre si il connaît son ID.</div></div>
+    <div class="card orange"><div class="card-title">TESTS FRONTEND (VITEST)</div><div class="card-body">Ajouter des tests sur les stores Pinia (auth, panier) et les composants critiques comme CocktailCard et PitTracker.</div></div>
+    <div class="card green"><div class="card-title">CI/CD + DÉPLOIEMENT VPS</div><div class="card-body">GitHub Actions pour lancer les tests à chaque push, puis déployer automatiquement sur un VPS via docker compose. HTTPS avec Let's Encrypt.</div></div>
+  </div>
+  <div class="slide-num">14 / 15</div>
+</div>
+
+<!-- 15 DÉMO -->
+<div class="slide" style="justify-content:center;align-items:center;text-align:center">
+  <div class="stripe" style="top:160px;right:-80px;width:520px;transform:rotate(6deg)"></div>
+  <div class="stripe" style="bottom:120px;left:-80px;width:440px;transform:rotate(-5deg)"></div>
+  <div style="position:relative;z-index:1">
+    <div class="eyebrow" style="justify-content:center"><span class="blink"></span>PLACE À LA PRATIQUE</div>
+    <h1 style="font-size:clamp(80px,12vw,130px)">DÉMO<span class="accent">.</span></h1>
+    <p style="font:700 13px 'Chakra Petch';letter-spacing:2px;color:var(--muted);margin-top:20px">http://localhost · docker compose up --build</p>
+  </div>
+  <div class="slide-num">15 / 15</div>
+</div>
+
+</div>
+<script>
+  const slides = document.querySelectorAll('.slide')
+  const progress = document.getElementById('progress')
+  let current = 0
+  function go(n) {
+    slides[current].classList.remove('active')
+    current = Math.max(0, Math.min(slides.length - 1, n))
+    slides[current].classList.add('active')
+    progress.style.width = ((current + 1) / slides.length * 100) + '%'
+  }
+  document.addEventListener('keydown', e => {
+    if (e.key==='ArrowRight'||e.key===' '||e.key==='ArrowDown'){e.preventDefault();go(current+1)}
+    if (e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();go(current-1)}
+    if (e.key==='Home') go(0)
+    if (e.key==='End') go(slides.length-1)
+  })
+  document.getElementById('deck').addEventListener('click', ()=>go(current+1))
+  go(0)
+</script>
+</body>
+</html>
