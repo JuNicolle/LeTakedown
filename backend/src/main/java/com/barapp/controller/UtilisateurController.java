@@ -1,6 +1,7 @@
 package com.barapp.controller;
 
 import com.barapp.dto.request.BarmakerLoginRequest;
+import com.barapp.dto.request.BarmakerRegisterRequest;
 import com.barapp.dto.request.ClientRequest;
 import com.barapp.dto.response.UtilisateurResponse;
 import com.barapp.service.UtilisateurService;
@@ -22,6 +23,13 @@ public class UtilisateurController {
             @Valid @RequestBody ClientRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(utilisateurService.rejoindreCommeClient(request));
+    }
+
+    @PostMapping("/barmaker/register")
+    public ResponseEntity<UtilisateurResponse> registerBarmaker(
+            @Valid @RequestBody BarmakerRegisterRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(utilisateurService.registerBarmaker(request));
     }
 
     @PostMapping("/barmaker/login")

@@ -7,6 +7,7 @@ import com.barapp.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -22,6 +23,7 @@ public class DataInitializer implements ApplicationRunner {
     private final CategorieRepository categorieRepository;
     private final IngredientRepository ingredientRepository;
     private final CocktailRepository cocktailRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public void run(ApplicationArguments args) {
@@ -37,7 +39,7 @@ public class DataInitializer implements ApplicationRunner {
                     .nom("BurnoutBar")
                     .prenom("BurnoutBar")
                     .email("barmaker@burnoutbar.fr")
-                    .motDePasse("Cheetah")
+                    .motDePasse(passwordEncoder.encode("Cheetah"))
                     .role(Role.BARMAKER)
                     .build());
         }

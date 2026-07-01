@@ -20,3 +20,7 @@ export function rejoindreCommeClient(prenom: string): Promise<UtilisateurRespons
 export function loginBarmaker(prenom: string, motDePasse: string): Promise<UtilisateurResponse> {
   return post('/api/utilisateurs/barmaker/login', { prenom, motDePasse })
 }
+
+export function registerBarmaker(prenom: string, motDePasse: string): Promise<UtilisateurResponse> {
+  return post('/api/utilisateurs/barmaker/register', { prenom, motDePasse })
+}

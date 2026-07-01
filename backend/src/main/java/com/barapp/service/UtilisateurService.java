@@ -1,6 +1,7 @@
 package com.barapp.service;
 
 import com.barapp.dto.request.BarmakerLoginRequest;
+import com.barapp.dto.request.BarmakerRegisterRequest;
 import com.barapp.dto.request.ClientRequest;
 import com.barapp.dto.response.UtilisateurResponse;
 import com.barapp.entity.Utilisateur;
@@ -8,6 +9,7 @@ import com.barapp.enums.Role;
 import com.barapp.exception.ResourceNotFoundException;
 import com.barapp.repository.UtilisateurRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
 public class UtilisateurService {
 
     private final UtilisateurRepository utilisateurRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     public UtilisateurResponse rejoindreCommeClient(ClientRequest request) {
         String email = "client_" + java.util.UUID.randomUUID() + "@burnoutbar.fr";
@@ -28,12 +31,27 @@ public class UtilisateurService {
         return UtilisateurResponse.from(utilisateurRepository.save(client));
     }
 
+    public UtilisateurResponse registerBarmaker(BarmakerRegisterRequest request) {
+        if (utilisateurRepository.existsByPrenomAndRole(request.prenom(), Role.BARMAKER)) {
+            throw new IllegalStateException("Ce prénom est déjà utilisé par un barmaker");
+        }
+        String email = "barmaker_" + java.util.UUID.randomUUID() + "@burnoutbar.fr";
+        Utilisateur barmaker = Utilisateur.builder()
+                .nom(request.prenom())
+                .prenom(request.prenom())
+                .email(email)
+                .motDePasse(passwordEncoder.encode(request.motDePasse()))
+                .role(Role.BARMAKER)
+                .build();
+        return UtilisateurResponse.from(utilisateurRepository.save(barmaker));
+    }
+
     public UtilisateurResponse loginBarmaker(BarmakerLoginRequest request) {
         Utilisateur barmaker = utilisateurRepository
                 .findByPrenomAndRole(request.prenom(), Role.BARMAKER)
                 .orElseThrow(() -> new ResourceNotFoundException("Barmaker", 0L));
 
-        if (!barmaker.getMotDePasse().equals(request.motDePasse())) {
+        if (!passwordEncoder.matches(request.motDePasse(), barmaker.getMotDePasse())) {
             throw new IllegalStateException("Mot de passe incorrect");
         }
 
